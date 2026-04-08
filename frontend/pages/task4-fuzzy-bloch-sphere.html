@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fuzzy Bloch Sphere</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" crossorigin="anonymous"></script>
+</head>
+<body class="task4-theme">
+  <main class="task4-shell">
+    <header class="task4-hero">
+      <p class="task4-kicker">Real-Space Operator Geometry</p>
+      <h1 class="task4-title">Fuzzy Bloch Sphere</h1>
+      <p class="task4-subtitle">
+        Expectation values of three non-commuting real-space observables rendered as a finite-state cloud with live thickness readout.
+      </p>
+    </header>
+
+    <section class="task4-grid">
+      <aside class="task4-sidebar">
+        <a class="task4-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="task4-card">
+          <h2 class="task4-card-title">Cloud Summary</h2>
+          <div class="task4-stat-row">
+            <span>Bott Index</span>
+            <strong id="task4-bott-index">--</strong>
+          </div>
+          <div class="task4-stat-row">
+            <span>States</span>
+            <strong id="task4-state-count">--</strong>
+          </div>
+          <div class="task4-stat-row">
+            <span>Mean Thickness</span>
+            <strong id="task4-thickness-mean">--</strong>
+          </div>
+          <div class="task4-stat-row">
+            <span>Max Thickness</span>
+            <strong id="task4-thickness-max">--</strong>
+          </div>
+        </div>
+
+        <div class="task4-card">
+          <h2 class="task4-card-title">Live Readout</h2>
+          <div class="task4-readout-grid">
+            <div class="task4-readout-tile">
+              <span class="task4-readout-label">State</span>
+              <strong id="task4-state-id">Hover a point</strong>
+            </div>
+            <div class="task4-readout-tile">
+              <span class="task4-readout-label">Thickness</span>
+              <strong id="task4-state-thickness">--</strong>
+            </div>
+            <div class="task4-readout-tile">
+              <span class="task4-readout-label">Variance Split</span>
+              <strong id="task4-state-variance">--</strong>
+            </div>
+            <div class="task4-readout-tile">
+              <span class="task4-readout-label">Coordinates</span>
+              <strong id="task4-state-coords">--</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="task4-card">
+          <h2 class="task4-card-title">Commutator Scale</h2>
+          <p class="task4-copy" id="task4-commutators">Loading operator norms...</p>
+        </div>
+
+        <div class="task4-card">
+          <h2 class="task4-card-title">Export</h2>
+          <div class="button-row">
+            <button id="task4-export-json" class="action-button task4-button" type="button">JSON</button>
+            <button id="task4-export-png" class="action-button task4-button" type="button">PNG</button>
+            <button id="task4-export-svg" class="action-button task4-button" type="button">SVG</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="task4-stage">
+        <div class="task4-plot-shell">
+          <div id="task4-plot" class="task4-plot-frame" aria-label="Fuzzy Bloch sphere point cloud"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const plotNode = document.getElementById("task4-plot");
+    const bottIndexNode = document.getElementById("task4-bott-index");
+    const stateCountNode = document.getElementById("task4-state-count");
+    const thicknessMeanNode = document.getElementById("task4-thickness-mean");
+    const thicknessMaxNode = document.getElementById("task4-thickness-max");
+    const stateIdNode = document.getElementById("task4-state-id");
+    const stateThicknessNode = document.getElementById("task4-state-thickness");
+    const stateVarianceNode = document.getElementById("task4-state-variance");
+    const stateCoordsNode = document.getElementById("task4-state-coords");
+    const commutatorNode = document.getElementById("task4-commutators");
+    const exportJsonButton = document.getElementById("task4-export-json");
+    const exportPngButton = document.getElementById("task4-export-png");
+    const exportSvgButton = document.getElementById("task4-export-svg");
+
+    function formatFloat(value, digits = 4) {
+      return Number.isFinite(value) ? Number(value).toFixed(digits) : "--";
+    }
+
+    function updateReadout(point) {
+      if (!point) {
+        stateIdNode.textContent = "Hover a point";
+        stateThicknessNode.textContent = "--";
+        stateVarianceNode.textContent = "--";
+        stateCoordsNode.textContent = "--";
+        return;
+      }
+
+      stateIdNode.textContent = `State ${point.state_index}`;
+      stateThicknessNode.textContent = formatFloat(point.thickness, 4);
+      stateVarianceNode.textContent =
+        `${formatFloat(point.variance_h1, 3)} / ${formatFloat(point.variance_h2, 3)} / ${formatFloat(point.variance_h3, 3)}`;
+      stateCoordsNode.textContent =
+        `(${formatFloat(point.h1, 3)}, ${formatFloat(point.h2, 3)}, ${formatFloat(point.h3, 3)})`;
+    }
+
+    function buildSphereWireframe(samples) {
+      const longitudes = [];
+      const latitudes = [];
+
+      for (let band = -2; band <= 2; band += 1) {
+        const latitude = (band / 5) * Math.PI * 0.9;
+        const x = [];
+        const y = [];
+        const z = [];
+        for (let index = 0; index <= samples; index += 1) {
+          const theta = (index / samples) * Math.PI * 2.0;
+          x.push(Math.cos(latitude) * Math.cos(theta));
+          y.push(Math.cos(latitude) * Math.sin(theta));
+          z.push(Math.sin(latitude));
+        }
+        latitudes.push({
+          type: "scatter3d",
+          mode: "lines",
+          hoverinfo: "skip",
+          showlegend: false,
+          x,
+          y,
+          z,
+          line: { color: "rgba(124,115,255,0.22)", width: 3 }
+        });
+      }
+
+      for (let meridian = 0; meridian < 6; meridian += 1) {
+        const phi = (meridian / 6) * Math.PI * 2.0;
+        const x = [];
+        const y = [];
+        const z = [];
+        for (let index = 0; index <= samples; index += 1) {
+          const latitude = -0.5 * Math.PI + (index / samples) * Math.PI;
+          x.push(Math.cos(latitude) * Math.cos(phi));
+          y.push(Math.cos(latitude) * Math.sin(phi));
+          z.push(Math.sin(latitude));
+        }
+        longitudes.push({
+          type: "scatter3d",
+          mode: "lines",
+          hoverinfo: "skip",
+          showlegend: false,
+          x,
+          y,
+          z,
+          line: { color: "rgba(43,217,255,0.18)", width: 2 }
+        });
+      }
+
+      return latitudes.concat(longitudes);
+    }
+
+    async function loadData() {
+      const response = await fetch("../../data/exports/task4.json", { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Failed to load task4.json: ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function exportJson(payload) {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = "fuzzy_bloch_sphere.json";
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderPlot(payload) {
+      const points = payload.metadata.cloud.points;
+      const x = points.map((point) => point.h1);
+      const y = points.map((point) => point.h2);
+      const z = points.map((point) => point.h3);
+      const thickness = points.map((point) => point.thickness);
+      const texts = points.map((point) =>
+        `State ${point.state_index}<br>Thickness ${formatFloat(point.thickness, 4)}<br>` +
+        `Var(H1,H2,H3)=(${formatFloat(point.variance_h1, 3)}, ${formatFloat(point.variance_h2, 3)}, ${formatFloat(point.variance_h3, 3)})`
+      );
+
+      const traces = [
+        {
+          type: "scatter3d",
+          mode: "markers",
+          name: "Expectation cloud",
+          x,
+          y,
+          z,
+          text: texts,
+          customdata: points,
+          hovertemplate:
+            "%{text}<br>(H1,H2,H3)=(%{x:.3f}, %{y:.3f}, %{z:.3f})<extra>Expectation cloud</extra>",
+          marker: {
+            size: 6.5,
+            color: thickness,
+            colorscale: [
+              [0.0, "#1fd5ff"],
+              [0.55, "#7b74ff"],
+              [1.0, "#fff2cf"]
+            ],
+            opacity: 0.9,
+            colorbar: {
+              title: { text: "Thickness" },
+              outlinecolor: "rgba(255,255,255,0.12)"
+            },
+            line: { color: "rgba(245,250,255,0.45)", width: 0.5 }
+          }
+        },
+        ...buildSphereWireframe(72)
+      ];
+
+      const layout = {
+        font: {
+          family: "Segoe UI, Arial, sans-serif",
+          color: "#eff7ff",
+          size: 14
+        },
+        paper_bgcolor: "#07111a",
+        plot_bgcolor: "#07111a",
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        legend: {
+          orientation: "h",
+          x: 0.02,
+          y: 0.98,
+          bgcolor: "rgba(7,17,26,0.46)",
+          bordercolor: "rgba(168,220,255,0.18)",
+          borderwidth: 1
+        },
+        scene: {
+          xaxis: {
+            title: { text: "H1" },
+            range: [-1.05, 1.05],
+            backgroundcolor: "rgba(10,20,30,0.92)",
+            gridcolor: "rgba(255,255,255,0.08)",
+            zerolinecolor: "rgba(255,255,255,0.14)"
+          },
+          yaxis: {
+            title: { text: "H2" },
+            range: [-1.05, 1.05],
+            backgroundcolor: "rgba(10,20,30,0.92)",
+            gridcolor: "rgba(255,255,255,0.08)",
+            zerolinecolor: "rgba(255,255,255,0.14)"
+          },
+          zaxis: {
+            title: { text: "H3" },
+            range: [-1.05, 1.05],
+            backgroundcolor: "rgba(10,20,30,0.96)",
+            gridcolor: "rgba(255,255,255,0.08)",
+            zerolinecolor: "rgba(255,255,255,0.14)"
+          },
+          aspectmode: "cube",
+          camera: { eye: { x: 1.42, y: -1.5, z: 1.18 } }
+        }
+      };
+
+      Plotly.newPlot(plotNode, traces, layout, {
+        displaylogo: false,
+        responsive: true
+      });
+
+      const firstPoint = points[0] || null;
+      updateReadout(firstPoint);
+      plotNode.on("plotly_hover", (event) => {
+        const hovered = event?.points?.[0]?.customdata || null;
+        updateReadout(hovered);
+      });
+      plotNode.on("plotly_unhover", () => updateReadout(firstPoint));
+
+      exportPngButton.addEventListener("click", () => {
+        Plotly.downloadImage(plotNode, { format: "png", filename: "fuzzy_bloch_sphere", scale: 2 });
+      });
+      exportSvgButton.addEventListener("click", () => {
+        Plotly.downloadImage(plotNode, { format: "svg", filename: "fuzzy_bloch_sphere", scale: 1 });
+      });
+    }
+
+    loadData()
+      .then((payload) => {
+        bottIndexNode.textContent = `${payload.bott_index}`;
+        stateCountNode.textContent = `${payload.metadata.cloud.points.length}`;
+        thicknessMeanNode.textContent = formatFloat(payload.metadata.cloud.thickness_mean, 4);
+        thicknessMaxNode.textContent = formatFloat(payload.metadata.cloud.thickness_max, 4);
+        commutatorNode.textContent =
+          `||[H1,H2]||=${formatFloat(payload.metadata.commutators.norm_h1_h2, 4)}, ` +
+          `||[H2,H3]||=${formatFloat(payload.metadata.commutators.norm_h2_h3, 4)}, ` +
+          `||[H3,H1]||=${formatFloat(payload.metadata.commutators.norm_h3_h1, 4)}.`;
+        exportJsonButton.addEventListener("click", () => exportJson(payload));
+        renderPlot(payload);
+      })
+      .catch((error) => {
+        commutatorNode.textContent = error.message;
+        plotNode.innerHTML = '<div class="task4-error">Unable to load the fuzzy Bloch sphere data.</div>';
+      });
+  </script>
+</body>
+</html>

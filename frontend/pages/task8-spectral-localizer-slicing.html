@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spectral Localizer Slicing</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body class="task8-theme">
+  <main class="task8-shell">
+    <header class="task8-hero">
+      <p class="task8-kicker">Spectral Localizer Field</p>
+      <h1 class="task8-title">Spectral Localizer Slicing</h1>
+      <p class="task8-subtitle">
+        A 3D view of the real-space scalar field |L<sub>&lambda;</sub><sup>-1</sup>|<sup>-1</sup> with an energy slice that moves through the localizer landscape.
+      </p>
+    </header>
+
+    <section class="task8-grid">
+      <aside class="task8-sidebar">
+        <a class="task8-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="task8-card">
+          <h2 class="task8-card-title">Slice Control</h2>
+          <label class="label task8-label" for="task8-energy-slider">Energy Slice</label>
+          <input id="task8-energy-slider" class="slider task8-slider" type="range" min="0" max="0" step="1" value="0">
+          <div class="range-row">
+            <span>Low</span>
+            <strong id="task8-energy-readout">0.000</strong>
+            <span>High</span>
+          </div>
+        </div>
+
+        <div class="task8-card">
+          <h2 class="task8-card-title">Field Summary</h2>
+          <div class="task8-stat-row">
+            <span>Bott Index</span>
+            <strong id="task8-bott">--</strong>
+          </div>
+          <div class="task8-stat-row">
+            <span>κ Coupling</span>
+            <strong id="task8-kappa">--</strong>
+          </div>
+          <div class="task8-stat-row">
+            <span>Global Min Gap</span>
+            <strong id="task8-global-gap">--</strong>
+          </div>
+          <div class="task8-stat-row">
+            <span>Slice Mean</span>
+            <strong id="task8-slice-mean">--</strong>
+          </div>
+        </div>
+
+        <div class="task8-card">
+          <h2 class="task8-card-title">Minimum Location</h2>
+          <div class="task8-readout-grid">
+            <div class="task8-readout-tile">
+              <span class="task8-readout-label">x, y</span>
+              <strong id="task8-min-position">--</strong>
+            </div>
+            <div class="task8-readout-tile">
+              <span class="task8-readout-label">Energy</span>
+              <strong id="task8-min-energy">--</strong>
+            </div>
+            <div class="task8-readout-tile">
+              <span class="task8-readout-label">Compute Time</span>
+              <strong id="task8-compute-seconds">--</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="task8-card">
+          <h2 class="task8-card-title">Export</h2>
+          <div class="button-row">
+            <button id="task8-export-json" class="action-button task8-button" type="button">JSON</button>
+            <button id="task8-export-png" class="action-button task8-button" type="button">PNG</button>
+            <button id="task8-export-svg" class="action-button task8-button" type="button">SVG</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="task8-stage">
+        <div class="task8-plot-shell">
+          <div id="task8-plot" class="task8-plot-frame" aria-label="Spectral localizer slicing plot"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="../js/task8-spectral-localizer-slicing.js"></script>
+</body>
+</html>

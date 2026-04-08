@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Torus to Sphere Deformation</title>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body class="project-theme task2-theme">
+  <main class="task2-shell">
+    <header class="task2-hero">
+      <p class="task2-kicker">Geometry View</p>
+      <h1 class="task2-title">Torus to Sphere Deformation</h1>
+      <p class="task2-subtitle">
+        A continuous real-space interpolation between a periodic torus embedding and a sphere-like wrapped geometry built from a truncated Fourier profile.
+      </p>
+    </header>
+
+    <section class="task2-grid">
+      <aside class="task2-sidebar">
+        <a class="task2-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="task2-card">
+          <label class="label task2-label" for="deformation-slider">Deformation</label>
+          <input id="deformation-slider" class="slider task2-slider" type="range" min="0" max="1" step="0.001" value="0">
+          <div class="range-row">
+            <span>Periodic torus</span>
+            <strong id="deformation-value">0.000</strong>
+            <span>Sphere-like wrap</span>
+          </div>
+        </div>
+
+        <div class="task2-card">
+          <label class="label task2-label" for="rotation-toggle">Auto rotation</label>
+          <button id="rotation-toggle" class="toggle task2-toggle" type="button" aria-pressed="true">On</button>
+        </div>
+
+        <div class="task2-card">
+          <p class="label task2-label">Export</p>
+          <div class="button-row">
+            <button id="export-json" class="action-button task2-button" type="button">JSON</button>
+            <button id="export-png" class="action-button task2-button" type="button">PNG</button>
+            <button id="export-svg" class="action-button task2-button" type="button">SVG</button>
+          </div>
+        </div>
+
+        <div class="task2-card">
+          <p class="label task2-label">Status</p>
+          <p id="task2-status" class="status-line">Scene initializing.</p>
+          <canvas id="task2-readout" class="readout-canvas task2-readout" width="360" height="180" aria-label="Live scene metrics"></canvas>
+        </div>
+      </aside>
+
+      <section class="task2-stage">
+        <div class="task2-scene-shell">
+          <div id="task2-scene" class="scene-frame task2-scene-frame" aria-label="Interactive torus to sphere surface">
+            <canvas id="task2-scene-overlay" class="task2-scene-overlay" width="1280" height="900" aria-hidden="true"></canvas>
+          </div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="../js/task2-torus-to-sphere.js"></script>
+</body>
+</html>

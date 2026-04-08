@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bott Phase Diagram</title>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body class="task6-theme">
+  <main class="task6-shell">
+    <header class="task6-hero">
+      <p class="task6-kicker">Real-Space Phase Structure</p>
+      <h1 class="task6-title">Bott Phase Diagram</h1>
+      <p class="task6-subtitle">
+        Discrete Bott-index plateaus over mass-disorder space, with disorder-slice cross-sections highlighting where the topological transitions sharpen.
+      </p>
+    </header>
+
+    <section class="task6-grid">
+      <aside class="task6-sidebar">
+        <a class="task6-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="task6-card">
+          <h2 class="task6-card-title">Sweep Summary</h2>
+          <div class="task6-stat-row">
+            <span>Mass Samples</span>
+            <strong id="task6-mass-count">--</strong>
+          </div>
+          <div class="task6-stat-row">
+            <span>Disorder Samples</span>
+            <strong id="task6-disorder-count">--</strong>
+          </div>
+          <div class="task6-stat-row">
+            <span>Selected Disorder</span>
+            <strong id="task6-selected-disorder">--</strong>
+          </div>
+        </div>
+
+        <div class="task6-card">
+          <h2 class="task6-card-title">View Mode</h2>
+          <div class="task6-toggle-row" role="tablist" aria-label="Phase diagram view mode">
+            <button id="task6-view-heatmap" class="task6-view-toggle is-active" type="button" aria-pressed="true">Heatmap</button>
+            <button id="task6-view-slice" class="task6-view-toggle" type="button" aria-pressed="false">Mass Slice</button>
+          </div>
+        </div>
+
+        <div class="task6-card">
+          <label class="label task6-label" for="task6-disorder-slider">Disorder Slice</label>
+          <input id="task6-disorder-slider" class="slider task6-slider" type="range" min="0" max="0" step="1" value="0">
+          <div class="range-row">
+            <span>Low disorder</span>
+            <strong id="task6-slider-readout">0.000</strong>
+            <span>High disorder</span>
+          </div>
+        </div>
+
+        <div class="task6-card">
+          <h2 class="task6-card-title">Hover Readout</h2>
+          <div class="task6-readout-grid">
+            <div class="task6-readout-tile">
+              <span class="task6-readout-label">Mass</span>
+              <strong id="task6-hover-mass">--</strong>
+            </div>
+            <div class="task6-readout-tile">
+              <span class="task6-readout-label">Disorder</span>
+              <strong id="task6-hover-disorder">--</strong>
+            </div>
+            <div class="task6-readout-tile">
+              <span class="task6-readout-label">Bott Index</span>
+              <strong id="task6-hover-bott">--</strong>
+            </div>
+            <div class="task6-readout-tile">
+              <span class="task6-readout-label">Gap</span>
+              <strong id="task6-hover-gap">--</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="task6-card">
+          <h2 class="task6-card-title">Export</h2>
+          <div class="button-row">
+            <button id="task6-export-json" class="action-button task6-button" type="button">JSON</button>
+            <button id="task6-export-png" class="action-button task6-button" type="button">PNG</button>
+            <button id="task6-export-svg" class="action-button task6-button" type="button">SVG</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="task6-stage">
+        <div class="task6-canvas-shell">
+          <canvas id="task6-canvas" class="task6-canvas" width="1440" height="900" aria-label="Bott phase diagram canvas"></canvas>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="../js/task6-bott-phase-diagram.js"></script>
+</body>
+</html>

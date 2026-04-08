@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparative Topological Analysis</title>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body class="task9-theme">
+  <main class="task9-shell">
+    <header class="task9-hero">
+      <p class="task9-kicker">Model Comparison</p>
+      <h1 class="task9-title">Comparative Topological Analysis</h1>
+      <p class="task9-subtitle">
+        A real-space comparison of a finite Haldane model and a disordered Chern insulator, with a deformation slider tracking how their density signatures connect inside the same Bott sector.
+      </p>
+    </header>
+
+    <section class="task9-grid">
+      <aside class="task9-sidebar">
+        <a class="task9-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="task9-card">
+          <h2 class="task9-card-title">Deformation</h2>
+          <label class="label task9-label" for="task9-interpolation-slider">Interpolation λ</label>
+          <input id="task9-interpolation-slider" class="slider task9-slider" type="range" min="0" max="0" step="1" value="0">
+          <div class="range-row">
+            <span>Haldane</span>
+            <strong id="task9-interpolation-readout">0.000</strong>
+            <span>Disordered Chern</span>
+          </div>
+        </div>
+
+        <div class="task9-card">
+          <h2 class="task9-card-title">Topological Sector</h2>
+          <div class="task9-stat-row">
+            <span>Haldane Bott</span>
+            <strong id="task9-haldane-bott">--</strong>
+          </div>
+          <div class="task9-stat-row">
+            <span>Chern Bott</span>
+            <strong id="task9-chern-bott">--</strong>
+          </div>
+          <div class="task9-stat-row">
+            <span>Deformation Bott</span>
+            <strong id="task9-deformation-bott">--</strong>
+          </div>
+          <div class="task9-stat-row">
+            <span>Invariant Match</span>
+            <strong id="task9-invariant-match">--</strong>
+          </div>
+        </div>
+
+        <div class="task9-card">
+          <h2 class="task9-card-title">Hover Readout</h2>
+          <div class="task9-readout-grid">
+            <div class="task9-readout-tile">
+              <span class="task9-readout-label">Panel</span>
+              <strong id="task9-hover-panel">Hover a map</strong>
+            </div>
+            <div class="task9-readout-tile">
+              <span class="task9-readout-label">Site</span>
+              <strong id="task9-hover-site">--</strong>
+            </div>
+            <div class="task9-readout-tile">
+              <span class="task9-readout-label">Density</span>
+              <strong id="task9-hover-density">--</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="task9-card">
+          <h2 class="task9-card-title">Export</h2>
+          <div class="button-row">
+            <button id="task9-export-json" class="action-button task9-button" type="button">JSON</button>
+            <button id="task9-export-png" class="action-button task9-button" type="button">PNG</button>
+            <button id="task9-export-svg" class="action-button task9-button" type="button">SVG</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="task9-stage">
+        <div class="task9-canvas-shell">
+          <canvas id="task9-canvas" class="task9-canvas" width="1500" height="980" aria-label="Comparative topology canvas"></canvas>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="../js/task9-comparative-topological-analysis.js"></script>
+</body>
+</html>

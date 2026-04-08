@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.DS_Store
+Thumbs.db
+
+data/cache/
+logs/physics_checks/
+logs/performance/
+
+*.tmp

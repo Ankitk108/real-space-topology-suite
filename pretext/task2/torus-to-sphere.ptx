@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pretext>
+  <article xml:id="task2-torus-to-sphere">
+    <title>Task 2: Torus-to-Sphere Deformation</title>
+    <section xml:id="task2-overview">
+      <title>Overview</title>
+      <p>
+        This note accompanies the interactive torus-to-sphere deformation used in the
+        visualization suite. The goal is to represent a continuous path from a flat periodic
+        torus embedding to a sphere-like wrapped geometry without leaving real-space language.
+      </p>
+    </section>
+    <section xml:id="task2-mapping">
+      <title>Truncated Fourier Mapping</title>
+      <p>
+        The rendered family is built from the harmonic ansatz
+        <m>
+          x_1 = f(\phi), \quad
+          x_2 = g(\phi) + h(\phi)\cos(\theta), \quad
+          x_3 = h(\phi)\sin(\theta).
+        </m>
+      </p>
+      <p>
+        In the implementation, <m>f(\phi)</m> is approximated by a finite odd-harmonic Fourier
+        truncation with seven terms,
+        <me>
+          f(\phi) \approx \frac{8}{\pi^2}\sum_{n=0}^{6}\frac{(-1)^n}{(2n+1)^2}\sin((2n+1)\phi).
+        </me>
+      </p>
+      <p>
+        The radial envelope <m>\sqrt{1-f(\phi)^2}</m> then controls the complementary factors
+        <m>g(\phi)</m> and <m>h(\phi)</m>, while a slider parameter <m>s \in [0,1]</m> performs a
+        smooth interpolation between the torus coordinates and the wrapped coordinates.
+      </p>
+    </section>
+  </article>
+</pretext>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wannier Function Obstruction</title>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body class="task5-theme">
+  <main class="task5-shell">
+    <header class="task5-hero">
+      <p class="task5-kicker">Projected Real-Space States</p>
+      <h1 class="task5-title">Wannier Function Obstruction</h1>
+      <p class="task5-subtitle">
+        Side-by-side density maps comparing a sharply localized projected state against the delocalized obstruction pattern of the topological phase.
+      </p>
+    </header>
+
+    <section class="task5-grid">
+      <aside class="task5-sidebar">
+        <a class="task5-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="task5-card">
+          <h2 class="task5-card-title">Comparison</h2>
+          <div class="task5-stat-row">
+            <span>Trivial Bott Index</span>
+            <strong id="task5-trivial-bott">--</strong>
+          </div>
+          <div class="task5-stat-row">
+            <span>Topological Bott Index</span>
+            <strong id="task5-topological-bott">--</strong>
+          </div>
+          <div class="task5-stat-row">
+            <span>Center Density Ratio</span>
+            <strong id="task5-center-ratio">--</strong>
+          </div>
+        </div>
+
+        <div class="task5-card">
+          <h2 class="task5-card-title">Live Readout</h2>
+          <div class="task5-readout-grid">
+            <div class="task5-readout-tile">
+              <span class="task5-readout-label">Panel</span>
+              <strong id="task5-hover-panel">Hover a map</strong>
+            </div>
+            <div class="task5-readout-tile">
+              <span class="task5-readout-label">Lattice Site</span>
+              <strong id="task5-hover-site">--</strong>
+            </div>
+            <div class="task5-readout-tile">
+              <span class="task5-readout-label">Density</span>
+              <strong id="task5-hover-density">--</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="task5-card">
+          <h2 class="task5-card-title">View Mode</h2>
+          <div class="task5-toggle-row" role="tablist" aria-label="Wannier view mode">
+            <button id="task5-view-lattice" class="task5-view-toggle is-active" type="button" aria-pressed="true">Lattice Maps</button>
+            <button id="task5-view-radial" class="task5-view-toggle" type="button" aria-pressed="false">Radial Density</button>
+          </div>
+        </div>
+
+        <div class="task5-card">
+          <h2 class="task5-card-title">Export</h2>
+          <div class="button-row">
+            <button id="task5-export-json" class="action-button task5-button" type="button">JSON</button>
+            <button id="task5-export-png" class="action-button task5-button" type="button">PNG</button>
+            <button id="task5-export-svg" class="action-button task5-button" type="button">SVG</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="task5-stage">
+        <div class="task5-canvas-shell">
+          <canvas id="task5-canvas" class="task5-canvas" width="1440" height="900" aria-label="Wannier obstruction comparison canvas"></canvas>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="../js/task5-wannier-obstruction.js"></script>
+</body>
+</html>

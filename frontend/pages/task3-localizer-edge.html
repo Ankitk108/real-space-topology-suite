@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task 3 - Localizer Heatmap and Edge States</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <script charset="utf-8" src="https://cdn.plot.ly/plotly-3.1.0.min.js" integrity="sha256-Ei4740bWZhaUTQuD6q9yQlgVCMPBz6CZWhevDYPv93A=" crossorigin="anonymous"></script>
+</head>
+<body class="task3-theme">
+  <main class="task3-shell">
+    <header class="task3-hero">
+      <p class="task3-kicker">Real-Space Topological Invariants</p>
+      <h1 class="task3-title">Spectral Localizer Landscape</h1>
+      <p class="task3-subtitle">
+        3D visualization of gap valleys and edge-localized states in a finite disordered topological insulator
+      </p>
+    </header>
+
+    <section class="task3-grid">
+      <aside class="task3-sidebar">
+        <a class="task3-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="task3-card">
+          <h2 class="task3-card-title">Visualization Overview</h2>
+          <p class="task3-copy">
+            The bright surface plateau marks regions of larger localizer gap, while the low-lying boundary markers track collapsed-gap edge valleys.
+          </p>
+        </div>
+
+        <div class="task3-card">
+          <h2 class="task3-card-title">Key Signals</h2>
+          <div class="task3-stat-row">
+            <span>Bott Index</span>
+            <strong>-1</strong>
+          </div>
+          <div class="task3-stat-row">
+            <span>View Type</span>
+            <strong>Plotly 3D</strong>
+          </div>
+          <div class="task3-stat-row">
+            <span>Focus</span>
+            <strong>Edge Valleys</strong>
+          </div>
+        </div>
+
+        <div class="task3-card">
+          <h2 class="task3-card-title">Reading Guide</h2>
+          <p class="task3-copy">
+            <span class="task3-bullet task3-bullet-surface"></span>
+            Surface height represents the localizer gap magnitude.
+          </p>
+          <p class="task3-copy">
+            <span class="task3-bullet task3-bullet-bulk"></span>
+            Pale blue points indicate bulk plateau samples.
+          </p>
+          <p class="task3-copy">
+            <span class="task3-bullet task3-bullet-edge"></span>
+            Orange diamond markers highlight edge valleys near gap collapse.
+          </p>
+        </div>
+      </aside>
+
+      <section class="task3-stage">
+        <div class="task3-plot-shell">
+          <div id="task3-plotly-landscape" class="task3-plot-frame" aria-label="Task 3 Plotly localizer landscape"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script>
+    window.PLOTLYENV = window.PLOTLYENV || {};
+    if (document.getElementById("task3-plotly-landscape")) {
+      Plotly.newPlot(
+        "task3-plotly-landscape",
+        [
+          {
+            colorbar: {
+              outlinecolor: "rgba(255,255,255,0.14)",
+              thickness: 16,
+              tickfont: { size: 12 },
+              title: { text: "|gap|" }
+            },
+            colorscale: [
+              [0.0, "#07131f"],
+              [0.1, "#123b66"],
+              [0.24, "#4f95cf"],
+              [0.42, "#a8dcff"],
+              [0.68, "#f2c879"],
+              [1.0, "#fff4d6"]
+            ],
+            contours: {
+              z: {
+                highlightcolor: "#eef8ff",
+                project: { z: true },
+                show: true,
+                usecolormap: false
+              }
+            },
+            hovertemplate: "x=%{x:.2f}<br>y=%{y:.2f}<br>|gap|=%{z:.6f}<extra>Localizer surface</extra>",
+            lighting: {
+              ambient: 0.72,
+              diffuse: 0.72,
+              roughness: 0.58,
+              specular: 0.18
+            },
+            lightposition: { x: 1.35, y: -1.5, z: 1.8 },
+            opacity: 0.97,
+            showscale: true,
+            x: {
+              dtype: "f8",
+              bdata: "AAAAAAAAAAAAAAAAAADgPwAAAAAAAPA/AAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAAGEAAAAAAAAAaQAAAAAAAABxA"
+            },
+            y: {
+              dtype: "f8",
+              bdata: "AAAAAAAAAAAAAAAAAADgPwAAAAAAAPA/AAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAAGEAAAAAAAAAaQAAAAAAAABxA"
+            },
+            z: {
+              dtype: "f8",
+              bdata: "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",
+              shape: "15, 15"
+            },
+            type: "surface"
+          },
+          {
+            hovertemplate: "x=%{x:.2f}<br>y=%{y:.2f}<br>|gap|=%{z:.6f}<extra>Bulk region</extra>",
+            marker: { color: "#bde9ff", opacity: 0.36, size: 3.2 },
+            mode: "markers",
+            name: "Bulk plateau",
+            x: {
+              dtype: "f8",
+              bdata: "AAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZAAAAAAAAA+D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABZA"
+            },
+            y: {
+              dtype: "f8",
+              bdata: "AAAAAAAA+D8AAAAAAAD4PwAAAAAAAPg/AAAAAAAA+D8AAAAAAAD4PwAAAAAAAPg/AAAAAAAA+D8AAAAAAAD4PwAAAAAAAPg/AAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAQAAAAAAAAABAAAAAAAAABEAAAAAAAAAEQAAAAAAAAARAAAAAAAAABEAAAAAAAAAEQAAAAAAAAARAAAAAAAAABEAAAAAAAAAEQAAAAAAAAARAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAIQAAAAAAAAAhAAAAAAAAADEAAAAAAAAAMQAAAAAAAAAxAAAAAAAAADEAAAAAAAAAMQAAAAAAAAAxAAAAAAAAADEAAAAAAAAAMQAAAAAAAAAxAAAAAAAAAEEAAAAAAAAAQQAAAAAAAABBAAAAAAAAAEEAAAAAAAAAQQAAAAAAAABBAAAAAAAAAEEAAAAAAAAAQQAAAAAAAABBAAAAAAAAAEkAAAAAAAAASQAAAAAAAABJAAAAAAAAAEkAAAAAAAAASQAAAAAAAABJAAAAAAAAAEkAAAAAAAAASQAAAAAAAABJAAAAAAAAAFEAAAAAAAAAUQAAAAAAAABRAAAAAAAAAFEAAAAAAAAAUQAAAAAAAABRAAAAAAAAAFEAAAAAAAAAUQAAAAAAAABRAAAAAAAAAFkAAAAAAAAAWQAAAAAAAABZAAAAAAAAAFkAAAAAAAAAWQAAAAAAAABZAAAAAAAAAFkAAAAAAAAAWQAAAAAAAABZA"
+            },
+            z: {
+              dtype: "f8",
+              bdata: "q2AYaITw2D90RplsEj3ZP8/2JjwUFtk/5NDN92kP2T8m44Y3CBLZP5BsP7DdE9k/EQCCwAEZ2T/2ALawcDTZPyXgeupDn9g/gAoXkvIr2T9YeYlN6jHhPypyAx21UOE/dAUgdw9Q4T9zsAfnWFLhPyiJyUF5UOE/Nrv+J4RN4T+clRiHzzPhP3AEjUsCdtk/4zRF7qcH2T/xSo1wNUbhP1/ITO5PtuQ/lfpFve4I5T9yh2YwmwrlP4ubmlwE+OQ/zN5Nu/Wu5D+QZfhgP3jhPx769S+7XNk/PbX1sIYE2T/MUqKhzkfhP3jZ7h94AOU/tHdGBQqc5j92QgNEoNvmP9A6pKWqluY/gs6vYQgp5T++oAZ0kXrhPzCV6wClWNk/2N1KsfgI2T94f4xtkkzhPy13VzIKD+U/5E5Hgxz25j9RuTUra5HnP0r6mSGkBec/5n94Q/U65T86uNCGynzhP8pgvpXyVdk/hSnvaI8K2T88fUOE8k3hP2D5ePUFGeU/NGBDqqwb5z+t1OJ1akDnPxWXO9DzxeY/bL7Mlm495T/Ssm0s53nhPwmhjQJ5Ttk/JQZgajEJ2T/nb8OKyUbhP7IopCry2uQ/LRBTPxND5T9EilOjTjblPxWtwRYYHeU/bqyY3JT15D/H9MBH3nbhP0BiP5YATNk/TzYOK2AA2T+Fv2hR6aLgP7a/ZL69R+E/mc7nfXBV4T/x5dznq1bhP9bD2xXuUeE/GeKuTXVP4T+PbXa7NEvhP0aedo+tZ9k/hdiQXEuS1z+Gk3jU/OXYP1+k92Jp9dg/MMPH7HT92D8D54fEpwLZPySdO9oqBdk/kBdl2igO2T8jOdjwSTbZP20asY4JC9k/"
+            },
+            type: "scatter3d"
+          },
+          {
+            hovertemplate: "x=%{x:.2f}<br>y=%{y:.2f}<br>|gap|=%{z:.6f}<extra>Collapsed edge valley</extra>",
+            marker: {
+              color: "#ff8d65",
+              line: { color: "#fff1e8", width: 1.1 },
+              opacity: 0.96,
+              size: 6.8,
+              symbol: "diamond"
+            },
+            mode: "markers",
+            name: "Edge valleys",
+            x: {
+              dtype: "f8",
+              bdata: "AAAAAAAA4D8AAAAAAAAAQAAAAAAAAARAAAAAAAAACEAAAAAAAAAMQAAAAAAAABBAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABhAAAAAAAAAGkAAAAAAAAAaQAAAAAAAAOA/AAAAAAAA4D8AAAAAAAAaQAAAAAAAAOA/AAAAAAAAGkAAAAAAAADgPwAAAAAAABpAAAAAAAAA4D8AAAAAAAAaQAAAAAAAAOA/AAAAAAAAGkAAAAAAAADgPwAAAAAAABpAAAAAAAAA4D8AAAAAAAD4PwAAAAAAAABAAAAAAAAABEAAAAAAAAAIQAAAAAAAAAxAAAAAAAAAEEAAAAAAAAASQAAAAAAAABRAAAAAAAAAGkA="
+            },
+            y: {
+              dtype: "f8",
+              bdata: "AAAAAAAA4D8AAAAAAADgPwAAAAAAAOA/AAAAAAAA4D8AAAAAAADgPwAAAAAAAOA/AAAAAAAA4D8AAAAAAADgPwAAAAAAAOA/AAAAAAAA4D8AAAAAAADwPwAAAAAAAABAAAAAAAAABEAAAAAAAAAEQAAAAAAAAAhAAAAAAAAACEAAAAAAAAAMQAAAAAAAAAxAAAAAAAAAEEAAAAAAAAAQQAAAAAAAABJAAAAAAAAAEkAAAAAAAAAUQAAAAAAAABRAAAAAAAAAGkAAAAAAAAAaQAAAAAAAABpAAAAAAAAAGkAAAAAAAAAaQAAAAAAAABpAAAAAAAAAGkAAAAAAAAAaQAAAAAAAABpAAAAAAAAAGkA"
+            },
+            z: {
+              dtype: "f8",
+              bdata: "W4c8jO33jz8AKyoq/YmxPwEvHC3O5LA/uK6qD++vsD/YyWU01aqwP7u7zGOlubA/0brZdpTosD9nLmVqFXSxP1+l7dPgirE/wKxwY/sZgj/hCqW9vRqyP6so6HXmV7E/3pP05bO3sD8AQ24OhcuxPzV/KSebkrA/m0i7Z8yesT+otT9gIpiwP2DjYo6cgrE/nGGRKdmmsD9AlGJbSWqxP4AAz8+hyrA/hN9DkqV6sT+jfWVdJEmxP3DWCGOKBLI/NW0NQAEJlj9XhIEltwuyP1O+XEGOxLA/PiEGptlGsD+jJNdWjjCwP3rkREMnQbA/pHgByG5lsD/gV27QrbGwPxDvLcxtcrE/m61TntQRmT8="
+            },
+            type: "scatter3d"
+          }
+        ],
+        {
+          font: {
+            family: "Segoe UI, Arial, sans-serif",
+            color: "#eff7ff",
+            size: 14
+          },
+          margin: { l: 0, r: 0, t: 24, b: 0 },
+          legend: {
+            orientation: "h",
+            x: 0.02,
+            y: 1.02,
+            bgcolor: "rgba(7,17,26,0.46)",
+            bordercolor: "rgba(168,220,255,0.18)",
+            borderwidth: 1
+          },
+          scene: {
+            xaxis: {
+              title: { text: "Lattice x" },
+              backgroundcolor: "rgba(10,20,30,0.92)",
+              gridcolor: "rgba(255,255,255,0.10)",
+              zerolinecolor: "rgba(255,255,255,0.14)"
+            },
+            yaxis: {
+              title: { text: "Lattice y" },
+              backgroundcolor: "rgba(10,20,30,0.92)",
+              gridcolor: "rgba(255,255,255,0.10)",
+              zerolinecolor: "rgba(255,255,255,0.14)"
+            },
+            zaxis: {
+              title: { text: "|localizer gap|" },
+              backgroundcolor: "rgba(10,20,30,0.96)",
+              gridcolor: "rgba(255,255,255,0.10)",
+              zerolinecolor: "rgba(255,255,255,0.14)"
+            },
+            camera: { eye: { x: 1.56, y: -1.72, z: 0.94 } },
+            aspectratio: { x: 1.08, y: 1.08, z: 0.5 }
+          },
+          paper_bgcolor: "#07111a",
+          plot_bgcolor: "#07111a",
+          annotations: [
+            {
+              align: "left",
+              bgcolor: "rgba(7,17,26,0.66)",
+              bordercolor: "rgba(168,220,255,0.18)",
+              borderwidth: 1,
+              font: { size: 12 },
+              showarrow: false,
+              text: "Valley threshold: 0.071182<br>Edge valleys: 34 / 34<br>Bulk mean gap: 0.524561",
+              x: 0.02,
+              xref: "paper",
+              y: 0.02,
+              yref: "paper"
+            }
+          ]
+        },
+        {
+          displaylogo: false,
+          responsive: true
+        }
+      );
+    }
+  </script>
+</body>
+</html>

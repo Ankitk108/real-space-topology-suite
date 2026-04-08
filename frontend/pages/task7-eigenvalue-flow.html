@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eigenvalue Flow</title>
+  <link rel="stylesheet" href="../styles/main.css">
+</head>
+<body class="task7-theme">
+  <main class="task7-shell">
+    <header class="task7-hero">
+      <p class="task7-kicker">Unit-Circle Winding</p>
+      <h1 class="task7-title">Eigenvalue Flow</h1>
+      <p class="task7-subtitle">
+        The spectrum of W = UVU†V† traced on the complex unit circle as mass and disorder move along a real-space parameter path.
+      </p>
+    </header>
+
+    <section class="task7-grid">
+      <aside class="task7-sidebar">
+        <a class="task7-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="task7-card">
+          <h2 class="task7-card-title">Playback</h2>
+          <div class="task7-toggle-row">
+            <button id="task7-play-toggle" class="task7-play-button" type="button" aria-pressed="true">Pause</button>
+            <button id="task7-step-button" class="task7-step-button" type="button">Step</button>
+          </div>
+          <label class="label task7-label" for="task7-frame-slider">Frame</label>
+          <input id="task7-frame-slider" class="slider task7-slider" type="range" min="0" max="0" step="1" value="0">
+          <div class="range-row">
+            <span>Start</span>
+            <strong id="task7-frame-readout">0 / 0</strong>
+            <span>End</span>
+          </div>
+        </div>
+
+        <div class="task7-card">
+          <h2 class="task7-card-title">Current Frame</h2>
+          <div class="task7-stat-row">
+            <span>Mass</span>
+            <strong id="task7-mass">--</strong>
+          </div>
+          <div class="task7-stat-row">
+            <span>Disorder</span>
+            <strong id="task7-disorder">--</strong>
+          </div>
+          <div class="task7-stat-row">
+            <span>Bott Index</span>
+            <strong id="task7-bott">--</strong>
+          </div>
+          <div class="task7-stat-row">
+            <span>Winding Number</span>
+            <strong id="task7-winding">--</strong>
+          </div>
+        </div>
+
+        <div class="task7-card">
+          <h2 class="task7-card-title">Consistency</h2>
+          <p id="task7-consistency" class="task7-copy">Loading flow consistency...</p>
+        </div>
+
+        <div class="task7-card">
+          <h2 class="task7-card-title">Export</h2>
+          <div class="button-row">
+            <button id="task7-export-json" class="action-button task7-button" type="button">JSON</button>
+            <button id="task7-export-png" class="action-button task7-button" type="button">PNG</button>
+            <button id="task7-export-svg" class="action-button task7-button" type="button">SVG</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="task7-stage">
+        <div class="task7-canvas-shell">
+          <canvas id="task7-canvas" class="task7-canvas" width="1440" height="900" aria-label="Eigenvalue flow canvas"></canvas>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="../js/task7-eigenvalue-flow.js"></script>
+</body>
+</html>

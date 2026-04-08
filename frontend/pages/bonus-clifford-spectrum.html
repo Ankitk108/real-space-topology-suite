@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clifford Spectrum Point Cloud</title>
+  <link rel="stylesheet" href="../styles/main.css">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body class="bonus-theme">
+  <main class="bonus-shell">
+    <header class="bonus-hero">
+      <p class="bonus-kicker">Clifford Spectrum</p>
+      <h1 class="bonus-title">Clifford Spectrum Point Cloud</h1>
+      <p class="bonus-subtitle">
+        A 3D point cloud of the near-zero spectral-localizer set, showing where the real-space Clifford spectrum approaches gap closure.
+      </p>
+    </header>
+
+    <section class="bonus-grid">
+      <aside class="bonus-sidebar">
+        <a class="bonus-back-link" href="../index.html">Back to Suite</a>
+
+        <div class="bonus-card">
+          <h2 class="bonus-card-title">Threshold</h2>
+          <label class="label bonus-label" for="bonus-threshold-slider">Near-Zero Percentile</label>
+          <input id="bonus-threshold-slider" class="slider bonus-slider" type="range" min="0" max="0" step="1" value="0">
+          <div class="range-row">
+            <span>Tight</span>
+            <strong id="bonus-threshold-readout">--</strong>
+            <span>Broad</span>
+          </div>
+        </div>
+
+        <div class="bonus-card">
+          <h2 class="bonus-card-title">Point Cloud</h2>
+          <div class="bonus-stat-row">
+            <span>Bott Index</span>
+            <strong id="bonus-bott">--</strong>
+          </div>
+          <div class="bonus-stat-row">
+            <span>Threshold Gap</span>
+            <strong id="bonus-threshold-gap">--</strong>
+          </div>
+          <div class="bonus-stat-row">
+            <span>Point Count</span>
+            <strong id="bonus-point-count">--</strong>
+          </div>
+          <div class="bonus-stat-row">
+            <span>κ Coupling</span>
+            <strong id="bonus-kappa">--</strong>
+          </div>
+        </div>
+
+        <div class="bonus-card">
+          <h2 class="bonus-card-title">Global Minimum</h2>
+          <div class="bonus-readout-grid">
+            <div class="bonus-readout-tile">
+              <span class="bonus-readout-label">Position</span>
+              <strong id="bonus-min-position">--</strong>
+            </div>
+            <div class="bonus-readout-tile">
+              <span class="bonus-readout-label">Energy</span>
+              <strong id="bonus-min-energy">--</strong>
+            </div>
+            <div class="bonus-readout-tile">
+              <span class="bonus-readout-label">Gap</span>
+              <strong id="bonus-min-gap">--</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="bonus-card">
+          <h2 class="bonus-card-title">Export</h2>
+          <div class="button-row">
+            <button id="bonus-export-json" class="action-button bonus-button" type="button">JSON</button>
+            <button id="bonus-export-png" class="action-button bonus-button" type="button">PNG</button>
+            <button id="bonus-export-svg" class="action-button bonus-button" type="button">SVG</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="bonus-stage">
+        <div class="bonus-plot-shell">
+          <div id="bonus-plot" class="bonus-plot-frame" aria-label="Clifford spectrum point cloud plot"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="../js/bonus-clifford-spectrum.js"></script>
+</body>
+</html>

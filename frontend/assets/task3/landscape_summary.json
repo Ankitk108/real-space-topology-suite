@@ -1,0 +1,40 @@
+{
+  "input_path": "data\\task1\\data.json",
+  "html_output": "data\\task3\\localizer_landscape.html",
+  "metadata": {
+    "task": "Task 1 - Core Physics Data Generation",
+    "papers": [
+      "Hastings and Loring, arXiv:0910.5490v1",
+      "Hastings and Loring, arXiv:1005.4883v2",
+      "Loring et al., arXiv:1907.11791v1"
+    ],
+    "model": "Finite disordered square-lattice HgTe/BHZ-like model with projected sphere observables and 2D spectral localizer sampling",
+    "config": {
+      "nx": 8,
+      "ny": 8,
+      "a": 1.0,
+      "b": 1.0,
+      "m": -1.0,
+      "disorder_strength": 0.6,
+      "disorder_seed": 17,
+      "fermi_energy": 0.0,
+      "localizer_kappa": 0.35,
+      "localizer_lambda": 0.0,
+      "grid_points_x": 15,
+      "grid_points_y": 15
+    },
+    "hilbert_dimension": 256,
+    "occupied_dimension": 128
+  },
+  "landscape_metrics": {
+    "valley_threshold": 0.07118155090184236,
+    "edge_valley_count": 34,
+    "total_valley_count": 34,
+    "minimum_gap": 0.008838619205638998,
+    "maximum_gap": 0.7365012973730619,
+    "bulk_mean_gap": 0.5245612331069943,
+    "bulk_median_gap": 0.5405971660256759,
+    "edge_valley_mean_gap": 0.06094009321298944,
+    "edge_valley_fraction": 1.0
+  }
+}

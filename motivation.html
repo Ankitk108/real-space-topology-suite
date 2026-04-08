@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motivation for the Bott Index</title>
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --panel: #171729;
+      --panel-border: rgba(255, 255, 255, 0.08);
+      --text: #f5f7ff;
+      --muted: #bac2d8;
+      --trivial: #64748b;
+      --bulk: #6366f1;
+      --edge: #7c3aed;
+      --impurity: #ef4444;
+      --accent: #c084fc;
+      --insight: rgba(124, 58, 237, 0.08);
+      --button: rgba(255, 255, 255, 0.06);
+      --button-active: linear-gradient(135deg, rgba(99, 102, 241, 0.92), rgba(124, 58, 237, 0.92));
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: radial-gradient(circle at top, rgba(124, 58, 237, 0.10), transparent 28%), var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      padding: 28px;
+    }
+
+    .shell {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .topbar,
+    .content,
+    .insight-box {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+    }
+
+    .topbar {
+      padding: 18px 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .topbar-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      line-height: 1;
+    }
+
+    .page-subtitle {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .step-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      border: 1px solid var(--panel-border);
+      background: var(--button);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: transform 140ms ease, background 140ms ease, color 140ms ease, border-color 140ms ease;
+    }
+
+    .pill.active {
+      background: var(--button-active);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-1px);
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid var(--panel-border);
+      background: var(--button);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    button.primary {
+      background: var(--button-active);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .content {
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .heading-row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .step-kicker {
+      margin: 0;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+
+    .step-title {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 0.98;
+    }
+
+    .step-caption {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .slider-wrap {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--panel-border);
+      gap: 10px;
+    }
+
+    .slider-wrap.visible {
+      display: grid;
+    }
+
+    .slider-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .slider-row strong {
+      color: var(--text);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      display: grid;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .panel-tag {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    canvas {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1.28 / 1;
+      display: block;
+      border-radius: 18px;
+      background: #101222;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .insight-box {
+      background: linear-gradient(180deg, rgba(124, 58, 237, 0.10), var(--insight));
+      padding: 18px 20px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .insight-box h3 {
+      margin: 0;
+      color: #d8b4fe;
+      font-size: 1rem;
+    }
+
+    .insight-box p {
+      margin: 0;
+      color: #dddaf8;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .legend-note {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 920px) {
+      body {
+        padding: 16px;
+      }
+
+      .canvas-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="topbar">
+      <div class="topbar-row">
+        <div>
+          <h1 class="page-title">Why We Need the Bott Index</h1>
+          <p class="page-subtitle">A visual motivation for real-space topology when disorder destroys momentum-space reasoning.</p>
+        </div>
+        <div class="controls">
+          <button id="suiteButton" type="button">Open suite</button>
+          <button id="playPauseButton" type="button">Pause animations</button>
+        </div>
+      </div>
+      <div class="topbar-row">
+        <div id="stepPills" class="step-pills" aria-label="Step indicators"></div>
+        <div class="controls">
+          <button id="prevButton" type="button">Previous</button>
+          <button id="nextButton" class="primary" type="button">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="content">
+      <div class="heading-row">
+        <p id="stepKicker" class="step-kicker"></p>
+        <h2 id="stepTitle" class="step-title"></h2>
+        <p id="stepCaption" class="step-caption"></p>
+      </div>
+
+      <div id="disorderControl" class="slider-wrap">
+        <div class="slider-row">
+          <span>Disorder strength</span>
+          <strong id="disorderReadout">0%</strong>
+        </div>
+        <input id="disorderSlider" type="range" min="0" max="100" step="1" value="0">
+        <div class="slider-row">
+          <span>Perfect crystal</span>
+          <span>Broken translational symmetry</span>
+        </div>
+      </div>
+
+      <div class="canvas-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <h3 id="leftPanelTitle" class="panel-title"></h3>
+            <span id="leftPanelTag" class="panel-tag"></span>
+          </div>
+          <canvas id="leftCanvas" width="620" height="480"></canvas>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3 id="rightPanelTitle" class="panel-title"></h3>
+            <span id="rightPanelTag" class="panel-tag"></span>
+          </div>
+          <canvas id="rightCanvas" width="620" height="480"></canvas>
+        </section>
+      </div>
+    </section>
+
+    <section class="insight-box">
+      <h3>Insight</h3>
+      <p id="insightText"></p>
+    </section>
+  </main>
+
+  <script>
+    const steps = [
+      {
+        kicker: "Step 1 of 5",
+        title: "What is an insulator?",
+        caption: "Both materials look similar in the bulk, so we need to ask what changes at the boundary.",
+        leftTitle: "Trivial insulator",
+        leftTag: "Bulk atoms only",
+        rightTitle: "Topological insulator",
+        rightTag: "Bulk looks the same",
+        insight: "In any insulator, electrons are trapped — there is an energy gap preventing current flow. Both materials above look identical in bulk. The difference only reveals itself at the boundary.",
+        disorderControl: false,
+      },
+      {
+        kicker: "Step 2 of 5",
+        title: "Expose the edge",
+        caption: "Once the boundary is cut open, the topological phase reveals a chiral edge current while the trivial phase stays quiet.",
+        leftTitle: "Open boundary",
+        leftTag: "No conducting edge",
+        rightTitle: "Chern insulator",
+        rightTag: "Chiral edge current",
+        insight: "Cutting a topological insulator reveals electrons that travel along the edge in one direction only. They cannot backscatter. This chiral edge current is the physical signature we want to protect.",
+        disorderControl: false,
+      },
+      {
+        kicker: "Step 3 of 5",
+        title: "Disorder breaks the crystal",
+        caption: "Impurities scramble the lattice, but the protected edge current still wraps around the boundary.",
+        leftTitle: "Disordered trivial material",
+        leftTag: "Broken crystal",
+        rightTitle: "Disordered topological material",
+        rightTag: "Protected edge flow",
+        insight: "Impurities break the perfect, repeating crystal structure, destroying translational symmetry. A trivial edge state scatters and vanishes. The topological edge state flows around defects, protected by a global quantum property.",
+        disorderControl: true,
+      },
+      {
+        kicker: "Step 4 of 5",
+        title: "Why traditional math fails",
+        caption: "When the crystal is broken, momentum-space topology dissolves, so we need a real-space invariant.",
+        leftTitle: "k-space picture",
+        leftTag: "Chern number fails",
+        rightTitle: "Real-space picture",
+        rightTag: "Bott index survives",
+        insight: "Traditional topological invariants like the Chern number are integrals over momentum space. Without translational symmetry, momentum is not conserved, and the Brillouin zone dissolves. We need an invariant computed directly in real space.",
+        disorderControl: true,
+      },
+      {
+        kicker: "Step 5 of 5",
+        title: "The Bott index",
+        caption: "The Bott index measures real-space winding through projected position operators, and that integer survives disorder.",
+        leftTitle: "Projected position operators",
+        leftTag: "U = exp(2πix/L), V = exp(2πiy/L)",
+        rightTitle: "Unit-circle winding",
+        rightTag: "W = U V U† V†",
+        insight: "Project filled states onto position operators U and V. The Bott index measures how many times the matrix U V U† V† winds around zero. The answer is always an integer — it cannot change unless the energy gap closes. This is the invariant that survives disorder.",
+        disorderControl: false,
+      }
+    ];
+
+    const colors = {
+      trivial: "#64748b",
+      bulk: "#6366f1",
+      edge: "#7c3aed",
+      impurity: "#ef4444",
+      text: "#f5f7ff",
+      muted: "#bac2d8",
+      accent: "#c084fc",
+      bg: "#101222",
+      grid: "rgba(255,255,255,0.06)",
+      glow: "rgba(124,58,237,0.22)",
+      zone: "#8b5cf6",
+      orange: "#fb923c"
+    };
+
+    const leftCanvas = document.getElementById("leftCanvas");
+    const rightCanvas = document.getElementById("rightCanvas");
+    const leftContext = leftCanvas.getContext("2d");
+    const rightContext = rightCanvas.getContext("2d");
+
+    const stepKickerNode = document.getElementById("stepKicker");
+    const stepTitleNode = document.getElementById("stepTitle");
+    const stepCaptionNode = document.getElementById("stepCaption");
+    const leftPanelTitleNode = document.getElementById("leftPanelTitle");
+    const leftPanelTagNode = document.getElementById("leftPanelTag");
+    const rightPanelTitleNode = document.getElementById("rightPanelTitle");
+    const rightPanelTagNode = document.getElementById("rightPanelTag");
+    const insightTextNode = document.getElementById("insightText");
+    const disorderControlNode = document.getElementById("disorderControl");
+    const disorderSlider = document.getElementById("disorderSlider");
+    const disorderReadoutNode = document.getElementById("disorderReadout");
+    const stepPillsNode = document.getElementById("stepPills");
+    const prevButton = document.getElementById("prevButton");
+    const nextButton = document.getElementById("nextButton");
+    const playPauseButton = document.getElementById("playPauseButton");
+    const suiteButton = document.getElementById("suiteButton");
+
+    let currentStep = 0;
+    let isPlaying = true;
+    let disorderStrength = 0;
+    let lastTime = 0;
+    let edgePhase = 0;
+    let bzNoise = 0;
+    let eigenRotation = 0;
+    let fuzzyPhase = 0;
+
+    const latticeSize = 9;
+
+    function createImpurities(count) {
+      const points = [];
+      for (let index = 0; index < count; index += 1) {
+        const angle = index * 2.399963229728653;
+        const radius = 0.18 + 0.6 * ((index % 7) / 6);
+        points.push({
+          x: 0.5 + Math.cos(angle) * radius * (0.55 + 0.35 * Math.sin(index * 0.73)),
+          y: 0.5 + Math.sin(angle) * radius * (0.52 + 0.28 * Math.cos(index * 0.81)),
+          size: 3 + (index % 4),
+        });
+      }
+      return points;
+    }
+
+    const impurityTemplate = createImpurities(26);
+    const eigenPhases = Array.from({ length: 12 }, (_, index) => (index / 12) * Math.PI * 2);
+
+    function resizeCanvas(canvas, context) {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    }
+
+    function drawBackground(context, width, height) {
+      context.clearRect(0, 0, width, height);
+      const gradient = context.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, "#111427");
+      gradient.addColorStop(1, "#0d1020");
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, width, height);
+    }
+
+    function latticeGeometry(width, height) {
+      const margin = Math.min(width, height) * 0.14;
+      const usableWidth = width - (2 * margin);
+      const usableHeight = height - (2 * margin);
+      const spacingX = usableWidth / (latticeSize - 1);
+      const spacingY = usableHeight / (latticeSize - 1);
+      return { margin, spacingX, spacingY };
+    }
+
+    function drawLattice(context, width, height, options) {
+      drawBackground(context, width, height);
+      const geometry = latticeGeometry(width, height);
+      const { margin, spacingX, spacingY } = geometry;
+      const distortion = options.distortion || 0;
+
+      context.strokeStyle = colors.grid;
+      context.lineWidth = 1;
+      for (let row = 0; row < latticeSize; row += 1) {
+        context.beginPath();
+        for (let col = 0; col < latticeSize; col += 1) {
+          const point = latticePoint(col, row, geometry, distortion);
+          if (col === 0) {
+            context.moveTo(point.x, point.y);
+          } else {
+            context.lineTo(point.x, point.y);
+          }
+        }
+        context.stroke();
+      }
+      for (let col = 0; col < latticeSize; col += 1) {
+        context.beginPath();
+        for (let row = 0; row < latticeSize; row += 1) {
+          const point = latticePoint(col, row, geometry, distortion);
+          if (row === 0) {
+            context.moveTo(point.x, point.y);
+          } else {
+            context.lineTo(point.x, point.y);
+          }
+        }
+        context.stroke();
+      }
+
+      for (let row = 0; row < latticeSize; row += 1) {
+        for (let col = 0; col < latticeSize; col += 1) {
+          const point = latticePoint(col, row, geometry, distortion);
+          const isEdge = row === 0 || col === 0 || row === latticeSize - 1 || col === latticeSize - 1;
+          const color = isEdge && options.edgeAtoms ? options.edgeColor : options.atomColor;
+          const radius = isEdge && options.edgeAtoms ? 5.2 : 4.2;
+          if (isEdge && options.edgeGlow) {
+            context.fillStyle = options.edgeGlow;
+            context.beginPath();
+            context.arc(point.x, point.y, radius * 2.1, 0, Math.PI * 2);
+            context.fill();
+          }
+          context.fillStyle = color;
+          context.beginPath();
+          context.arc(point.x, point.y, radius, 0, Math.PI * 2);
+          context.fill();
+        }
+      }
+
+      if (options.impurities) {
+        drawImpurities(context, width, height, options.impurityStrength || 0);
+      }
+
+      if (options.edgePulse) {
+        drawEdgePulse(context, geometry, options.edgePulseStrength || 1);
+      }
+    }
+
+    function latticePoint(col, row, geometry, distortion) {
+      const baseX = geometry.margin + col * geometry.spacingX;
+      const baseY = geometry.margin + row * geometry.spacingY;
+      const wave = distortion * 9;
+      return {
+        x: baseX + Math.sin(row * 1.21 + col * 0.73) * wave,
+        y: baseY + Math.cos(col * 1.17 + row * 0.61) * wave,
+      };
+    }
+
+    function drawImpurities(context, width, height, strength) {
+      const activeCount = Math.floor(impurityTemplate.length * strength);
+      for (let index = 0; index < activeCount; index += 1) {
+        const impurity = impurityTemplate[index];
+        const x = width * impurity.x;
+        const y = height * impurity.y;
+        context.fillStyle = "rgba(239,68,68,0.18)";
+        context.beginPath();
+        context.arc(x, y, impurity.size * 2.3, 0, Math.PI * 2);
+        context.fill();
+        context.fillStyle = colors.impurity;
+        context.beginPath();
+        context.arc(x, y, impurity.size, 0, Math.PI * 2);
+        context.fill();
+      }
+    }
+
+    function drawEdgePulse(context, geometry, intensity) {
+      const perimeter = [];
+      for (let col = 0; col < latticeSize; col += 1) {
+        perimeter.push(latticePoint(col, 0, geometry, 0));
+      }
+      for (let row = 1; row < latticeSize; row += 1) {
+        perimeter.push(latticePoint(latticeSize - 1, row, geometry, 0));
+      }
+      for (let col = latticeSize - 2; col >= 0; col -= 1) {
+        perimeter.push(latticePoint(col, latticeSize - 1, geometry, 0));
+      }
+      for (let row = latticeSize - 2; row > 0; row -= 1) {
+        perimeter.push(latticePoint(0, row, geometry, 0));
+      }
+
+      context.strokeStyle = "rgba(124,58,237,0.22)";
+      context.lineWidth = 6;
+      context.beginPath();
+      perimeter.forEach((point, index) => {
+        if (index === 0) {
+          context.moveTo(point.x, point.y);
+        } else {
+          context.lineTo(point.x, point.y);
+        }
+      });
+      context.closePath();
+      context.stroke();
+
+      const pulseCount = 7;
+      for (let index = 0; index < pulseCount; index += 1) {
+        const phase = (edgePhase + index / pulseCount) % 1;
+        const pointIndex = Math.floor(phase * perimeter.length) % perimeter.length;
+        const point = perimeter[pointIndex];
+        const size = 6 + intensity * 2;
+        context.fillStyle = "rgba(124,58,237,0.18)";
+        context.beginPath();
+        context.arc(point.x, point.y, size * 2, 0, Math.PI * 2);
+        context.fill();
+        context.fillStyle = colors.edge;
+        context.beginPath();
+        context.arc(point.x, point.y, size, 0, Math.PI * 2);
+        context.fill();
+      }
+    }
+
+    function drawBrillouinZone(context, width, height, strength) {
+      drawBackground(context, width, height);
+      const cx = width * 0.5;
+      const cy = height * 0.5;
+      const radius = Math.min(width, height) * 0.24;
+
+      context.save();
+      context.translate(cx, cy);
+
+      const blur = strength * 18;
+      const opacity = 1 - strength;
+      context.shadowBlur = blur;
+      context.shadowColor = colors.zone;
+      context.strokeStyle = `rgba(139,92,246,${0.95 * opacity})`;
+      context.lineWidth = 3;
+      context.beginPath();
+      for (let side = 0; side < 6; side += 1) {
+        const angle = -Math.PI / 6 + side * (Math.PI / 3);
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        if (side === 0) {
+          context.moveTo(x, y);
+        } else {
+          context.lineTo(x, y);
+        }
+      }
+      context.closePath();
+      context.stroke();
+
+      context.shadowBlur = 0;
+      context.fillStyle = `rgba(139,92,246,${0.10 * opacity})`;
+      context.fill();
+
+      context.fillStyle = colors.muted;
+      context.font = "600 18px system-ui";
+      context.fillText("Brillouin zone", -60, -radius - 28);
+      context.font = "700 16px system-ui";
+      context.fillStyle = strength < 0.4 ? "#fca5a5" : "#ef4444";
+      context.fillText("Chern Number: Fails", -72, radius + 46);
+      context.font = "500 13px system-ui";
+      context.fillStyle = colors.muted;
+      context.fillText("(requires perfect crystal)", -84, radius + 68);
+
+      const noiseCount = Math.floor(160 * strength);
+      for (let index = 0; index < noiseCount; index += 1) {
+        const angle = index * 2.399 + bzNoise * 3.2;
+        const r = radius * (0.2 + 1.4 * ((index % 11) / 10));
+        const x = Math.cos(angle) * r;
+        const y = Math.sin(angle) * r;
+        context.fillStyle = `rgba(239,68,68,${0.18 + 0.42 * ((index % 7) / 6)})`;
+        context.beginPath();
+        context.arc(x, y, 1.5 + (index % 3), 0, Math.PI * 2);
+        context.fill();
+      }
+
+      context.restore();
+    }
+
+    function drawRealSpaceSuccess(context, width, height, strength) {
+      drawLattice(context, width, height, {
+        atomColor: colors.bulk,
+        edgeAtoms: true,
+        edgeColor: colors.edge,
+        edgeGlow: "rgba(124,58,237,0.18)",
+        edgePulse: true,
+        edgePulseStrength: 1,
+        impurities: true,
+        impurityStrength: strength,
+        distortion: 0.16 + strength * 0.85,
+      });
+
+      context.fillStyle = colors.text;
+      context.font = "700 16px system-ui";
+      context.fillText("Bott Index: Succeeds", 18, height - 42);
+      context.fillStyle = colors.muted;
+      context.font = "500 13px system-ui";
+      context.fillText("(works directly in real space)", 18, height - 20);
+    }
+
+    function drawUVPanel(context, width, height) {
+      drawBackground(context, width, height);
+      const margin = 52;
+      const gridSize = 7;
+      const spacing = Math.min((width - margin * 2) / gridSize, (height - margin * 2) / gridSize);
+
+      context.fillStyle = colors.muted;
+      context.font = "600 15px system-ui";
+      context.fillText("U = exp(2πix/L)", 26, 28);
+      context.fillText("V = exp(2πiy/L)", width - 154, 28);
+
+      for (let row = 0; row < gridSize; row += 1) {
+        for (let col = 0; col < gridSize; col += 1) {
+          const baseX = margin + col * spacing;
+          const baseY = 66 + row * spacing;
+          const jitterX = Math.sin(fuzzyPhase + row * 0.7 + col * 0.4) * 4;
+          const jitterY = Math.cos(fuzzyPhase * 0.9 + col * 0.8) * 4;
+          const alphaX = col / Math.max(gridSize - 1, 1);
+          const alphaY = row / Math.max(gridSize - 1, 1);
+
+          context.fillStyle = `rgba(99,102,241,${0.18 + 0.8 * alphaX})`;
+          context.fillRect(baseX - 8 + jitterX, baseY - 8, 18, 18);
+          context.fillStyle = `rgba(196,132,252,${0.18 + 0.8 * alphaY})`;
+          context.fillRect(baseX - 2, baseY - 2 + jitterY, 18, 18);
+
+          context.fillStyle = "rgba(255,255,255,0.06)";
+          context.beginPath();
+          context.arc(baseX + jitterX * 0.35, baseY + jitterY * 0.35, 4.2, 0, Math.PI * 2);
+          context.fill();
+        }
+      }
+
+      context.fillStyle = colors.muted;
+      context.font = "500 13px system-ui";
+      context.fillText("Fuzzy overlap means [U,V] is not exactly zero after projection.", 26, height - 18);
+    }
+
+    function drawWindingPanel(context, width, height) {
+      drawBackground(context, width, height);
+      const cx = width * 0.5;
+      const cy = height * 0.52;
+      const radius = Math.min(width, height) * 0.27;
+
+      context.strokeStyle = "rgba(255,255,255,0.12)";
+      context.lineWidth = 2;
+      context.beginPath();
+      context.arc(cx, cy, radius, 0, Math.PI * 2);
+      context.stroke();
+
+      context.strokeStyle = "rgba(255,255,255,0.08)";
+      context.beginPath();
+      context.moveTo(cx - radius - 28, cy);
+      context.lineTo(cx + radius + 28, cy);
+      context.moveTo(cx, cy - radius - 28);
+      context.lineTo(cx, cy + radius + 28);
+      context.stroke();
+
+      context.strokeStyle = colors.orange;
+      context.lineWidth = 4;
+      context.beginPath();
+      context.arc(cx, cy, radius + 16, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2);
+      context.stroke();
+
+      context.fillStyle = colors.orange;
+      context.font = "700 14px system-ui";
+      context.fillText("winding number = 1", cx - 62, cy - radius - 34);
+
+      for (let index = 0; index < eigenPhases.length; index += 1) {
+        const angle = eigenPhases[index] + eigenRotation;
+        const x = cx + Math.cos(angle) * radius;
+        const y = cy + Math.sin(angle) * radius;
+        const hue = 230 + index * 9;
+        context.fillStyle = `hsl(${hue}, 85%, 68%)`;
+        context.beginPath();
+        context.arc(x, y, 5.5, 0, Math.PI * 2);
+        context.fill();
+      }
+
+      context.fillStyle = colors.muted;
+      context.font = "600 14px system-ui";
+      context.fillText("Eigenvalues of W = U V U† V†", 22, 28);
+    }
+
+    function renderStep() {
+      const step = steps[currentStep];
+      stepKickerNode.textContent = step.kicker;
+      stepTitleNode.textContent = step.title;
+      stepCaptionNode.textContent = step.caption;
+      leftPanelTitleNode.textContent = step.leftTitle;
+      leftPanelTagNode.textContent = step.leftTag;
+      rightPanelTitleNode.textContent = step.rightTitle;
+      rightPanelTagNode.textContent = step.rightTag;
+      insightTextNode.textContent = step.insight;
+      disorderControlNode.classList.toggle("visible", step.disorderControl);
+      disorderReadoutNode.textContent = `${Math.round(disorderStrength * 100)}%`;
+
+      Array.from(stepPillsNode.children).forEach((pill, index) => {
+        pill.classList.toggle("active", index === currentStep);
+      });
+
+      prevButton.disabled = currentStep === 0;
+      nextButton.disabled = currentStep === steps.length - 1;
+
+      drawAll();
+    }
+
+    function drawAll() {
+      const leftWidth = leftCanvas.width / (Math.min(window.devicePixelRatio || 1, 2));
+      const leftHeight = leftCanvas.height / (Math.min(window.devicePixelRatio || 1, 2));
+      const rightWidth = rightCanvas.width / (Math.min(window.devicePixelRatio || 1, 2));
+      const rightHeight = rightCanvas.height / (Math.min(window.devicePixelRatio || 1, 2));
+
+      if (currentStep === 0) {
+        drawLattice(leftContext, leftWidth, leftHeight, { atomColor: colors.trivial });
+        drawLattice(rightContext, rightWidth, rightHeight, { atomColor: colors.bulk });
+        return;
+      }
+
+      if (currentStep === 1) {
+        drawLattice(leftContext, leftWidth, leftHeight, { atomColor: colors.trivial });
+        drawLattice(rightContext, rightWidth, rightHeight, {
+          atomColor: colors.bulk,
+          edgeAtoms: true,
+          edgeColor: colors.edge,
+          edgeGlow: "rgba(124,58,237,0.18)",
+          edgePulse: true,
+          edgePulseStrength: 1,
+        });
+        return;
+      }
+
+      if (currentStep === 2) {
+        drawLattice(leftContext, leftWidth, leftHeight, {
+          atomColor: colors.trivial,
+          impurities: true,
+          impurityStrength: disorderStrength,
+          distortion: disorderStrength,
+        });
+        drawLattice(rightContext, rightWidth, rightHeight, {
+          atomColor: colors.bulk,
+          edgeAtoms: true,
+          edgeColor: colors.edge,
+          edgeGlow: "rgba(124,58,237,0.18)",
+          edgePulse: true,
+          edgePulseStrength: 1,
+          impurities: true,
+          impurityStrength: disorderStrength,
+          distortion: disorderStrength,
+        });
+        return;
+      }
+
+      if (currentStep === 3) {
+        drawBrillouinZone(leftContext, leftWidth, leftHeight, disorderStrength);
+        drawRealSpaceSuccess(rightContext, rightWidth, rightHeight, disorderStrength);
+        return;
+      }
+
+      drawUVPanel(leftContext, leftWidth, leftHeight);
+      drawWindingPanel(rightContext, rightWidth, rightHeight);
+    }
+
+    function animate(time) {
+      const delta = time - lastTime;
+      lastTime = time;
+
+      if (isPlaying) {
+        if (currentStep === 1 || currentStep === 2 || currentStep === 3) {
+          edgePhase = (edgePhase + delta * 0.00013) % 1;
+          bzNoise = (bzNoise + delta * 0.0005) % (Math.PI * 2);
+        }
+        if (currentStep === 4) {
+          fuzzyPhase += delta * 0.0013;
+          eigenRotation += delta * 0.00035;
+        }
+      }
+
+      drawAll();
+      requestAnimationFrame(animate);
+    }
+
+    function buildPills() {
+      steps.forEach((step, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "pill";
+        button.textContent = `${index + 1}`;
+        button.addEventListener("click", () => {
+          currentStep = index;
+          renderStep();
+        });
+        stepPillsNode.appendChild(button);
+      });
+    }
+
+    function resizeAll() {
+      resizeCanvas(leftCanvas, leftContext);
+      resizeCanvas(rightCanvas, rightContext);
+      drawAll();
+    }
+
+    disorderSlider.addEventListener("input", (event) => {
+      disorderStrength = Number(event.target.value) / 100;
+      disorderReadoutNode.textContent = `${Math.round(disorderStrength * 100)}%`;
+      drawAll();
+    });
+
+    prevButton.addEventListener("click", () => {
+      currentStep = Math.max(0, currentStep - 1);
+      renderStep();
+    });
+
+    nextButton.addEventListener("click", () => {
+      currentStep = Math.min(steps.length - 1, currentStep + 1);
+      renderStep();
+    });
+
+    playPauseButton.addEventListener("click", () => {
+      isPlaying = !isPlaying;
+      playPauseButton.textContent = isPlaying ? "Pause animations" : "Play animations";
+    });
+
+    suiteButton.addEventListener("click", () => {
+      window.location.href = "./frontend/index.html";
+    });
+
+    window.addEventListener("resize", resizeAll);
+
+    buildPills();
+    resizeAll();
+    renderStep();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pretext>
+  <article xml:id="task3-spectral-localizer-edge">
+    <title>Task 3: Localizer Heatmap and Edge States</title>
+    <section xml:id="task3-overview">
+      <title>Overview</title>
+      <p>
+        This note accompanies the two-dimensional spectral-localizer heatmap. Each lattice point
+        is assigned the smallest singular scale of the localizer
+        <m>
+          L_{(x,y,\lambda)} =
+          \kappa (X-xI)\otimes \Gamma_1 +
+          \kappa (Y-yI)\otimes \Gamma_2 +
+          (H-\lambda I)\otimes \Gamma_3.
+        </m>
+      </p>
+      <p>
+        Regions where the localizer gap becomes small indicate where the finite system is close
+        to local topological activity or edge-state support.
+      </p>
+    </section>
+    <section xml:id="task3-edge-density">
+      <title>Edge Density Overlay</title>
+      <p>
+        The overlaid density map is formed from open-boundary eigenstates nearest the Fermi level.
+        When the weight is concentrated on the outer sites, the overlay traces physical edge
+        localization directly in real space, without Bloch decomposition.
+      </p>
+    </section>
+  </article>
+</pretext>
