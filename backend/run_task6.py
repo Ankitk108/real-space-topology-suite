@@ -24,6 +24,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--disorder-min", type=float, default=0.0)
     parser.add_argument("--disorder-max", type=float, default=2.4)
     parser.add_argument("--disorder-points", type=int, default=11)
+    parser.add_argument("--collapse-mass", type=float, default=-1.0)
+    parser.add_argument("--collapse-realizations", type=int, default=8)
+    parser.add_argument("--collapse-disorder-min", type=float, default=0.0)
+    parser.add_argument("--collapse-disorder-max", type=float, default=8.0)
+    parser.add_argument("--collapse-disorder-points", type=int, default=21)
     parser.add_argument("--export-path", default="data/exports/task6.json")
     parser.add_argument("--physics-log-dir", default="logs/physics_checks")
     parser.add_argument("--performance-log-dir", default="logs/performance")
@@ -53,6 +58,11 @@ def main() -> None:
         disorder_min=args.disorder_min,
         disorder_max=args.disorder_max,
         disorder_points=args.disorder_points,
+        collapse_mass=args.collapse_mass,
+        collapse_realizations=args.collapse_realizations,
+        collapse_disorder_min=args.collapse_disorder_min,
+        collapse_disorder_max=args.collapse_disorder_max,
+        collapse_disorder_points=args.collapse_disorder_points,
     )
 
     representative = result["representative"]
@@ -81,6 +91,7 @@ def main() -> None:
                 "periodic_y": True,
             },
             "phase_diagram": result["phase_diagram"],
+            "disorder_collapse": result["disorder_collapse"],
             "solver": representative["solver"],
             "validation": representative["validation"],
             "performance": result["performance"],
@@ -104,6 +115,8 @@ def main() -> None:
         "plateau_counts": payload["metadata"]["phase_diagram"]["plateau_counts"],
         "representative_bott_index": payload["bott_index"],
         "representative_gap": representative["spectral_gap"],
+        "collapse_mass": payload["metadata"]["disorder_collapse"]["mass"],
+        "collapse_critical_disorder": payload["metadata"]["disorder_collapse"]["critical_disorder_estimate"],
         "grid_shape": [
             len(payload["metadata"]["phase_diagram"]["disorder_axis"]),
             len(payload["metadata"]["phase_diagram"]["mass_axis"]),

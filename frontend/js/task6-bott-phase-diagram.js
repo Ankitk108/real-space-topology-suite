@@ -2,14 +2,17 @@ const canvas = document.getElementById("task6-canvas");
 const massCountNode = document.getElementById("task6-mass-count");
 const disorderCountNode = document.getElementById("task6-disorder-count");
 const selectedDisorderNode = document.getElementById("task6-selected-disorder");
+const collapseMassNode = document.getElementById("task6-collapse-mass");
+const realizationsNode = document.getElementById("task6-realizations");
 const sliderReadoutNode = document.getElementById("task6-slider-readout");
 const hoverMassNode = document.getElementById("task6-hover-mass");
 const hoverDisorderNode = document.getElementById("task6-hover-disorder");
 const hoverBottNode = document.getElementById("task6-hover-bott");
 const hoverGapNode = document.getElementById("task6-hover-gap");
+const hoverFractionNode = document.getElementById("task6-hover-fraction");
 const disorderSlider = document.getElementById("task6-disorder-slider");
 const heatmapButton = document.getElementById("task6-view-heatmap");
-const sliceButton = document.getElementById("task6-view-slice");
+const collapseButton = document.getElementById("task6-view-collapse");
 const exportJsonButton = document.getElementById("task6-export-json");
 const exportPngButton = document.getElementById("task6-export-png");
 const exportSvgButton = document.getElementById("task6-export-svg");
@@ -19,14 +22,17 @@ if (
   !massCountNode ||
   !disorderCountNode ||
   !selectedDisorderNode ||
+  !collapseMassNode ||
+  !realizationsNode ||
   !sliderReadoutNode ||
   !hoverMassNode ||
   !hoverDisorderNode ||
   !hoverBottNode ||
   !hoverGapNode ||
+  !hoverFractionNode ||
   !disorderSlider ||
   !heatmapButton ||
-  !sliceButton ||
+  !collapseButton ||
   !exportJsonButton ||
   !exportPngButton ||
   !exportSvgButton
@@ -69,21 +75,22 @@ function resizeCanvas() {
 }
 
 function setView(viewName) {
-  currentView = viewName === "slice" ? "slice" : "heatmap";
+  currentView = viewName === "collapse" ? "collapse" : "heatmap";
   heatmapButton.classList.toggle("is-active", currentView === "heatmap");
-  sliceButton.classList.toggle("is-active", currentView === "slice");
+  collapseButton.classList.toggle("is-active", currentView === "collapse");
   heatmapButton.setAttribute("aria-pressed", currentView === "heatmap" ? "true" : "false");
-  sliceButton.setAttribute("aria-pressed", currentView === "slice" ? "true" : "false");
+  collapseButton.setAttribute("aria-pressed", currentView === "collapse" ? "true" : "false");
   if (latestPayload) {
     draw(latestPayload);
   }
 }
 
-function updateHover(mass, disorder, bott, gap) {
+function updateHover(mass, disorder, bott, gap, fraction = null) {
   hoverMassNode.textContent = formatFloat(mass, 3);
   hoverDisorderNode.textContent = formatFloat(disorder, 3);
-  hoverBottNode.textContent = `${Math.round(bott)}`;
+  hoverBottNode.textContent = formatFloat(bott, 3);
   hoverGapNode.textContent = formatFloat(gap, 4);
+  hoverFractionNode.textContent = fraction == null ? "--" : formatFloat(fraction, 3);
 }
 
 function clearHover() {
@@ -91,6 +98,7 @@ function clearHover() {
   hoverDisorderNode.textContent = "--";
   hoverBottNode.textContent = "--";
   hoverGapNode.textContent = "--";
+  hoverFractionNode.textContent = "--";
 }
 
 function drawHeatmap(frame, phaseData) {
@@ -219,14 +227,15 @@ function drawHeatmap(frame, phaseData) {
   };
 }
 
-function drawSlice(frame, phaseData) {
-  const massAxis = phaseData.mass_axis;
-  const disorderAxis = phaseData.disorder_axis;
-  const bottGrid = phaseData.bott_grid;
-  const gapGrid = phaseData.gap_grid;
-  const sliceBott = bottGrid[selectedDisorderIndex];
-  const sliceGap = gapGrid[selectedDisorderIndex];
-  const maxGap = Math.max(...sliceGap, 1.0e-12);
+function drawCollapse(frame, collapseData) {
+  const disorderAxis = collapseData.disorder_axis;
+  const meanBott = collapseData.mean_bott_magnitude;
+  const stdBott = collapseData.std_bott_magnitude;
+  const meanGap = collapseData.mean_gap;
+  const topologicalFraction = collapseData.topological_fraction;
+  const realizationCurves = collapseData.bott_magnitude_realizations;
+  const maxDisorder = Math.max(...disorderAxis, 1.0e-12);
+  const criticalDisorder = collapseData.critical_disorder_estimate;
 
   context.fillStyle = "rgba(18, 22, 37, 0.86)";
   context.strokeStyle = "rgba(255,255,255,0.08)";
@@ -238,17 +247,21 @@ function drawSlice(frame, phaseData) {
 
   context.fillStyle = "#f3fbff";
   context.font = "700 26px 'Segoe UI'";
-  context.fillText("Mass Slice", frame.x + 30, frame.y + 34);
+  context.fillText("Disorder Collapse", frame.x + 30, frame.y + 34);
   context.fillStyle = "#bfd0e4";
   context.font = "600 13px 'Segoe UI'";
-  context.fillText(`Fixed disorder = ${formatFloat(disorderAxis[selectedDisorderIndex], 3)}`, frame.x + 30, frame.y + 56);
+  context.fillText(`Mass fixed deep in the topological phase at m = ${formatFloat(collapseData.mass, 3)}`, frame.x + 30, frame.y + 56);
 
-  const left = frame.x + 56;
+  const left = frame.x + 66;
   const right = frame.x + frame.width - 32;
-  const top = frame.y + 78;
-  const bottom = frame.y + frame.height - 54;
+  const top = frame.y + 94;
+  const bottom = frame.y + frame.height - 96;
   const plotWidth = right - left;
   const plotHeight = bottom - top;
+  const legendX = left + 10;
+  const legendY = top + 14;
+  const legendWidth = 188;
+  const legendHeight = 98;
 
   context.strokeStyle = "rgba(255,255,255,0.10)";
   context.lineWidth = 1;
@@ -258,14 +271,58 @@ function drawSlice(frame, phaseData) {
     context.moveTo(left, y);
     context.lineTo(right, y);
     context.stroke();
+
+    const tickValue = guide / 4;
+    context.fillStyle = "#9fb3c8";
+    context.font = "600 11px 'Segoe UI'";
+    context.fillText(formatFloat(tickValue, tickValue === 0 || tickValue === 1 ? 0 : 2), left - 30, y + 4);
   }
 
-  context.strokeStyle = "#22d3ee";
-  context.lineWidth = 3;
+  realizationCurves.forEach((curve) => {
+    context.strokeStyle = "rgba(124, 211, 238, 0.10)";
+    context.lineWidth = 1.1;
+    context.beginPath();
+    curve.forEach((bott, index) => {
+      const x = left + (disorderAxis[index] / maxDisorder) * plotWidth;
+      const y = bottom - (bott / 1.05) * plotHeight;
+      if (index === 0) {
+        context.moveTo(x, y);
+      } else {
+        context.lineTo(x, y);
+      }
+    });
+    context.stroke();
+  });
+
+  const upperBand = [];
+  const lowerBand = [];
+  disorderAxis.forEach((disorder, index) => {
+    const x = left + (disorder / maxDisorder) * plotWidth;
+    upperBand.push({ x, y: bottom - (Math.min(1.02, meanBott[index] + stdBott[index]) / 1.05) * plotHeight });
+    lowerBand.push({ x, y: bottom - (Math.max(0.0, meanBott[index] - stdBott[index]) / 1.05) * plotHeight });
+  });
+
+  context.fillStyle = "rgba(34, 211, 238, 0.12)";
   context.beginPath();
-  sliceGap.forEach((gap, index) => {
-    const x = left + (index / Math.max(massAxis.length - 1, 1)) * plotWidth;
-    const y = bottom - (gap / maxGap) * plotHeight;
+  upperBand.forEach((point, index) => {
+    if (index === 0) {
+      context.moveTo(point.x, point.y);
+    } else {
+      context.lineTo(point.x, point.y);
+    }
+  });
+  lowerBand.slice().reverse().forEach((point) => {
+    context.lineTo(point.x, point.y);
+  });
+  context.closePath();
+  context.fill();
+
+  context.strokeStyle = "#22d3ee";
+  context.lineWidth = 3.5;
+  context.beginPath();
+  meanBott.forEach((bott, index) => {
+    const x = left + (disorderAxis[index] / maxDisorder) * plotWidth;
+    const y = bottom - (bott / 1.05) * plotHeight;
     if (index === 0) {
       context.moveTo(x, y);
     } else {
@@ -274,54 +331,118 @@ function drawSlice(frame, phaseData) {
   });
   context.stroke();
 
-  sliceBott.forEach((bott, index) => {
-    const x = left + (index / Math.max(massAxis.length - 1, 1)) * plotWidth;
-    const y = bottom - (sliceGap[index] / maxGap) * plotHeight;
-    context.fillStyle = bottColor(bott);
-    context.beginPath();
-    context.arc(x, y, 6, 0, Math.PI * 2);
-    context.fill();
-    context.strokeStyle = "rgba(255,255,255,0.18)";
-    context.stroke();
+  context.strokeStyle = "#ff9a42";
+  context.lineWidth = 2.4;
+  context.beginPath();
+  topologicalFraction.forEach((fraction, index) => {
+    const x = left + (disorderAxis[index] / maxDisorder) * plotWidth;
+    const y = bottom - (fraction / 1.05) * plotHeight;
+    if (index === 0) {
+      context.moveTo(x, y);
+    } else {
+      context.lineTo(x, y);
+    }
   });
+  context.stroke();
+
+  if (criticalDisorder != null) {
+    const criticalX = left + (criticalDisorder / maxDisorder) * plotWidth;
+    context.setLineDash([6, 6]);
+    context.strokeStyle = "#ffe08a";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.moveTo(criticalX, top);
+    context.lineTo(criticalX, bottom);
+    context.stroke();
+    context.setLineDash([]);
+    context.fillStyle = "#ffe08a";
+    context.font = "700 12px 'Segoe UI'";
+    context.fillText(`Wc ~ ${formatFloat(criticalDisorder, 2)}`, Math.min(criticalX + 8, right - 56), top + 16);
+  }
 
   context.fillStyle = "#d8e4f2";
   context.font = "600 13px 'Segoe UI'";
-  context.fillText("Mass", right - 24, bottom + 30);
-  context.save();
-  context.translate(left - 36, top + plotHeight * 0.5);
-  context.rotate(-Math.PI / 2);
-  context.fillText("Normalized gap", 0, 0);
-  context.restore();
+  context.fillText("Normalized response", left, top - 16);
+  context.fillText("Disorder strength W", right - 106, bottom + 30);
 
   context.font = "600 11px 'Segoe UI'";
-  massAxis.forEach((mass, index) => {
-    if (index % 2 !== 0 && index !== massAxis.length - 1) {
+  disorderAxis.forEach((disorder, index) => {
+    if (index % 2 !== 0 && index !== disorderAxis.length - 1) {
       return;
     }
-    const x = left + (index / Math.max(massAxis.length - 1, 1)) * plotWidth;
-    context.fillText(formatFloat(mass, 1), x - 8, bottom + 16);
+    const x = left + (disorder / maxDisorder) * plotWidth;
+    context.fillText(formatFloat(disorder, 1), x - 8, bottom + 16);
   });
 
-  context.fillStyle = "#22d3ee";
+  context.fillStyle = "rgba(12, 18, 31, 0.84)";
+  context.strokeStyle = "rgba(255,255,255,0.10)";
+  context.lineWidth = 1.1;
+  context.beginPath();
+  context.roundRect(legendX, legendY, legendWidth, legendHeight, 16);
+  context.fill();
+  context.stroke();
+
+  context.fillStyle = "#eff7ff";
   context.font = "700 12px 'Segoe UI'";
-  context.fillText("Gap line", frame.x + 34, frame.y + frame.height - 20);
-  context.fillStyle = "#d7e4f1";
-  context.fillText("Marker color = Bott plateau", frame.x + 104, frame.y + frame.height - 20);
+  context.fillText("Legend", legendX + 14, legendY + 20);
+
+  context.strokeStyle = "#22d3ee";
+  context.lineWidth = 3.5;
+  context.beginPath();
+  context.moveTo(legendX + 14, legendY + 40);
+  context.lineTo(legendX + 42, legendY + 40);
+  context.stroke();
+  context.fillStyle = "#22d3ee";
+  context.font = "700 11px 'Segoe UI'";
+  context.fillText("Mean |Bott|", legendX + 52, legendY + 44);
+
+  context.fillStyle = "rgba(34, 211, 238, 0.12)";
+  context.fillRect(legendX + 14, legendY + 54, 28, 10);
+  context.fillStyle = "#9fe8f7";
+  context.font = "700 11px 'Segoe UI'";
+  context.fillText("Realization spread", legendX + 52, legendY + 63);
+
+  context.strokeStyle = "#ff9a42";
+  context.lineWidth = 2.4;
+  context.beginPath();
+  context.moveTo(legendX + 14, legendY + 80);
+  context.lineTo(legendX + 42, legendY + 80);
+  context.stroke();
+  context.fillStyle = "#ffb36e";
+  context.fillText("Topological fraction", legendX + 52, legendY + 84);
+
+  const insightX = left;
+  const insightY = bottom + 34;
+  const insightWidth = Math.min(480, right - left - 130);
+  const insightHeight = 44;
+  context.fillStyle = "rgba(124,58,237,0.08)";
+  context.strokeStyle = "rgba(124,58,237,0.22)";
+  context.lineWidth = 1;
+  context.beginPath();
+  context.roundRect(insightX, insightY, insightWidth, insightHeight, 14);
+  context.fill();
+  context.stroke();
+
+  context.fillStyle = "#d8e4f2";
+  context.font = "700 11px 'Segoe UI'";
+  context.fillText("Insight", insightX + 12, insightY + 16);
+  context.font = "600 11px 'Segoe UI'";
+  context.fillText("Flat near 1 means the topological phase survives disorder.", insightX + 64, insightY + 16);
+  context.fillText("The sharp drop near Wc marks disorder-driven collapse of quantization.", insightX + 12, insightY + 33);
 
   latestLayout = {
-    type: "slice",
+    type: "collapse",
     left,
     right,
     top,
     bottom,
     plotWidth,
     plotHeight,
-    massAxis,
     disorderAxis,
-    sliceBott,
-    sliceGap,
-    maxGap,
+    meanBott,
+    meanGap,
+    topologicalFraction,
+    maxDisorder,
   };
 }
 
@@ -334,11 +455,10 @@ function draw(payload) {
   context.fillRect(0, 0, width, height);
 
   const frame = { x: 26, y: 26, width: width - 52, height: height - 52 };
-  const phaseData = payload.metadata.phase_diagram;
-  if (currentView === "slice") {
-    drawSlice(frame, phaseData);
+  if (currentView === "collapse") {
+    drawCollapse(frame, payload.metadata.disorder_collapse);
   } else {
-    drawHeatmap(frame, phaseData);
+    drawHeatmap(frame, payload.metadata.phase_diagram);
   }
 }
 
@@ -369,24 +489,29 @@ function hitTest(event) {
     };
   }
 
-  if (
-    x < latestLayout.left ||
-    x > latestLayout.right ||
-    y < latestLayout.top ||
-    y > latestLayout.bottom
-  ) {
-    return null;
+  if (latestLayout.type === "collapse") {
+    if (
+      x < latestLayout.left ||
+      x > latestLayout.right ||
+      y < latestLayout.top ||
+      y > latestLayout.bottom
+    ) {
+      return null;
+    }
+    const index = Math.min(
+      latestLayout.disorderAxis.length - 1,
+      Math.max(0, Math.round(((x - latestLayout.left) / Math.max(latestLayout.plotWidth, 1)) * (latestLayout.disorderAxis.length - 1))),
+    );
+    return {
+      mass: latestPayload.metadata.disorder_collapse.mass,
+      disorder: latestLayout.disorderAxis[index],
+      bott: latestLayout.meanBott[index],
+      gap: latestLayout.meanGap[index],
+      fraction: latestLayout.topologicalFraction[index],
+    };
   }
-  const index = Math.min(
-    latestLayout.massAxis.length - 1,
-    Math.max(0, Math.round(((x - latestLayout.left) / Math.max(latestLayout.plotWidth, 1)) * (latestLayout.massAxis.length - 1))),
-  );
-  return {
-    mass: latestLayout.massAxis[index],
-    disorder: latestLayout.disorderAxis[selectedDisorderIndex],
-    bott: latestLayout.sliceBott[index],
-    gap: latestLayout.sliceGap[index],
-  };
+
+  return null;
 }
 
 function buildSvg() {
@@ -394,7 +519,7 @@ function buildSvg() {
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
   <rect width="100%" height="100%" fill="#0a1320" />
   <text x="40" y="52" fill="#eff7ff" font-size="30" font-weight="700">Bott Phase Diagram</text>
-  <text x="40" y="86" fill="#c4d2e1" font-size="15">Use PNG export for the fully rendered heatmap or mass slice.</text>
+  <text x="40" y="86" fill="#c4d2e1" font-size="15">Use PNG export for the plateau heatmap or disorder-collapse plot.</text>
 </svg>`;
 }
 
@@ -410,8 +535,11 @@ loadData()
   .then((payload) => {
     latestPayload = payload;
     const phaseData = payload.metadata.phase_diagram;
+    const collapseData = payload.metadata.disorder_collapse;
     massCountNode.textContent = `${phaseData.mass_axis.length}`;
     disorderCountNode.textContent = `${phaseData.disorder_axis.length}`;
+    collapseMassNode.textContent = formatFloat(collapseData.mass, 3);
+    realizationsNode.textContent = `${collapseData.realizations}`;
     disorderSlider.max = `${Math.max(phaseData.disorder_axis.length - 1, 0)}`;
     disorderSlider.value = "0";
     selectedDisorderIndex = 0;
@@ -434,12 +562,12 @@ canvas.addEventListener("mousemove", (event) => {
     clearHover();
     return;
   }
-  updateHover(hit.mass, hit.disorder, hit.bott, hit.gap);
+  updateHover(hit.mass, hit.disorder, hit.bott, hit.gap, hit.fraction);
 });
 
 canvas.addEventListener("mouseleave", clearHover);
 heatmapButton.addEventListener("click", () => setView("heatmap"));
-sliceButton.addEventListener("click", () => setView("slice"));
+collapseButton.addEventListener("click", () => setView("collapse"));
 disorderSlider.addEventListener("input", (event) => {
   if (!latestPayload) {
     return;

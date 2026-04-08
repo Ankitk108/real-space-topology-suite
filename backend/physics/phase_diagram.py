@@ -84,6 +84,11 @@ def run_task6_phase_diagram(
     disorder_min: float,
     disorder_max: float,
     disorder_points: int,
+    collapse_mass: float,
+    collapse_realizations: int,
+    collapse_disorder_min: float,
+    collapse_disorder_max: float,
+    collapse_disorder_points: int,
 ) -> dict:
     start = perf_counter()
     mass_values = np.linspace(mass_min, mass_max, mass_points, dtype=np.float64)
@@ -128,6 +133,54 @@ def run_task6_phase_diagram(
     if representative_point is None:
         raise ValueError("Phase diagram sweep produced no sample points.")
 
+    collapse_axis = np.linspace(
+        collapse_disorder_min,
+        collapse_disorder_max,
+        collapse_disorder_points,
+        dtype=np.float64,
+    )
+    collapse_realization_curves: list[list[float]] = []
+    collapse_gap_curves: list[list[float]] = []
+    collapse_bott_seconds = []
+    collapse_build_seconds = []
+    collapse_cache_hits = 0
+
+    for realization_index in range(collapse_realizations):
+        realization_bott = []
+        realization_gap = []
+        seed = disorder_seed + 1000 * realization_index
+        for disorder in collapse_axis.tolist():
+            point = evaluate_phase_point(
+                nx=nx,
+                ny=ny,
+                mass=float(collapse_mass),
+                disorder=float(disorder),
+                disorder_seed=seed,
+                fermi=fermi,
+            )
+            realization_bott.append(float(point["bott_index"]))
+            realization_gap.append(float(point["spectral_gap"]))
+            collapse_bott_seconds.append(point["performance"]["bott_seconds"])
+            collapse_build_seconds.append(point["performance"]["hamiltonian_build_seconds"])
+            collapse_cache_hits += int(point["performance"]["cache_hit"])
+        collapse_realization_curves.append(realization_bott)
+        collapse_gap_curves.append(realization_gap)
+
+    collapse_bott_array = np.asarray(collapse_realization_curves, dtype=np.float64)
+    collapse_gap_array = np.asarray(collapse_gap_curves, dtype=np.float64)
+    collapse_bott_magnitude = np.abs(collapse_bott_array)
+    collapse_mean = np.mean(collapse_bott_magnitude, axis=0)
+    collapse_std = np.std(collapse_bott_magnitude, axis=0)
+    collapse_gap_mean = np.mean(collapse_gap_array, axis=0)
+    collapse_gap_std = np.std(collapse_gap_array, axis=0)
+    collapse_topological_fraction = np.mean(np.isclose(collapse_bott_magnitude, 1.0), axis=0)
+
+    collapse_threshold = None
+    for disorder, mean_value in zip(collapse_axis.tolist(), collapse_mean.tolist()):
+        if mean_value < 0.5:
+            collapse_threshold = float(disorder)
+            break
+
     total_seconds = perf_counter() - start
     bott_unique, bott_counts = np.unique(bott_grid, return_counts=True)
     plateau_counts = {
@@ -145,11 +198,40 @@ def run_task6_phase_diagram(
             "sample_points": sample_points,
             "plateau_counts": plateau_counts,
         },
+        "disorder_collapse": {
+            "mass": float(collapse_mass),
+            "disorder_axis": collapse_axis.tolist(),
+            "realizations": int(collapse_realizations),
+            "bott_realizations": collapse_bott_array.tolist(),
+            "bott_magnitude_realizations": collapse_bott_magnitude.tolist(),
+            "gap_realizations": collapse_gap_array.tolist(),
+            "mean_bott_magnitude": collapse_mean.tolist(),
+            "std_bott_magnitude": collapse_std.tolist(),
+            "mean_gap": collapse_gap_mean.tolist(),
+            "std_gap": collapse_gap_std.tolist(),
+            "topological_fraction": collapse_topological_fraction.tolist(),
+            "critical_disorder_estimate": collapse_threshold,
+        },
         "performance": {
             "total_seconds": float(total_seconds),
-            "mean_bott_seconds": float(np.mean(np.asarray(bott_seconds, dtype=np.float64))),
-            "mean_hamiltonian_build_seconds": float(np.mean(np.asarray(build_seconds, dtype=np.float64))),
-            "cache_hit_ratio": float(cache_hits / max(mass_points * disorder_points, 1)),
-            "memory_mb": float((bott_grid.nbytes + gap_grid.nbytes) / (1024.0 * 1024.0)),
+            "mean_bott_seconds": float(
+                np.mean(np.asarray(bott_seconds + collapse_bott_seconds, dtype=np.float64))
+            ),
+            "mean_hamiltonian_build_seconds": float(
+                np.mean(np.asarray(build_seconds + collapse_build_seconds, dtype=np.float64))
+            ),
+            "cache_hit_ratio": float(
+                (cache_hits + collapse_cache_hits)
+                / max((mass_points * disorder_points) + (collapse_disorder_points * collapse_realizations), 1)
+            ),
+            "memory_mb": float(
+                (
+                    bott_grid.nbytes
+                    + gap_grid.nbytes
+                    + collapse_bott_array.nbytes
+                    + collapse_gap_array.nbytes
+                )
+                / (1024.0 * 1024.0)
+            ),
         },
     }

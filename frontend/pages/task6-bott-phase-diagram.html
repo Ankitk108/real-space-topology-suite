@@ -12,7 +12,7 @@
       <p class="task6-kicker">Real-Space Phase Structure</p>
       <h1 class="task6-title">Bott Phase Diagram</h1>
       <p class="task6-subtitle">
-        Discrete Bott-index plateaus over mass-disorder space, with disorder-slice cross-sections highlighting where the topological transitions sharpen.
+        Discrete Bott-index plateaus over mass-disorder space, paired with an ensemble-averaged disorder-collapse plot that tracks where the topological plateau breaks.
       </p>
     </header>
 
@@ -34,23 +34,31 @@
             <span>Selected Disorder</span>
             <strong id="task6-selected-disorder">--</strong>
           </div>
+          <div class="task6-stat-row">
+            <span>Collapse Mass</span>
+            <strong id="task6-collapse-mass">--</strong>
+          </div>
+          <div class="task6-stat-row">
+            <span>Realizations</span>
+            <strong id="task6-realizations">--</strong>
+          </div>
         </div>
 
         <div class="task6-card">
           <h2 class="task6-card-title">View Mode</h2>
           <div class="task6-toggle-row" role="tablist" aria-label="Phase diagram view mode">
             <button id="task6-view-heatmap" class="task6-view-toggle is-active" type="button" aria-pressed="true">Heatmap</button>
-            <button id="task6-view-slice" class="task6-view-toggle" type="button" aria-pressed="false">Mass Slice</button>
+            <button id="task6-view-collapse" class="task6-view-toggle" type="button" aria-pressed="false">Disorder Collapse</button>
           </div>
         </div>
 
         <div class="task6-card">
-          <label class="label task6-label" for="task6-disorder-slider">Disorder Slice</label>
+          <label class="label task6-label" for="task6-disorder-slider">Heatmap Guide</label>
           <input id="task6-disorder-slider" class="slider task6-slider" type="range" min="0" max="0" step="1" value="0">
           <div class="range-row">
-            <span>Low disorder</span>
+            <span>Guide line low</span>
             <strong id="task6-slider-readout">0.000</strong>
-            <span>High disorder</span>
+            <span>Guide line high</span>
           </div>
         </div>
 
@@ -72,6 +80,10 @@
             <div class="task6-readout-tile">
               <span class="task6-readout-label">Gap</span>
               <strong id="task6-hover-gap">--</strong>
+            </div>
+            <div class="task6-readout-tile">
+              <span class="task6-readout-label">Topological Fraction</span>
+              <strong id="task6-hover-fraction">--</strong>
             </div>
           </div>
         </div>

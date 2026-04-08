@@ -624,6 +624,7 @@
       const cx = width * 0.5;
       const cy = height * 0.5;
       const radius = Math.min(width, height) * 0.24;
+      const squareSize = radius * 1.55;
 
       context.save();
       context.translate(cx, cy);
@@ -635,26 +636,16 @@
       context.strokeStyle = `rgba(139,92,246,${0.95 * opacity})`;
       context.lineWidth = 3;
       context.beginPath();
-      for (let side = 0; side < 6; side += 1) {
-        const angle = -Math.PI / 6 + side * (Math.PI / 3);
-        const x = Math.cos(angle) * radius;
-        const y = Math.sin(angle) * radius;
-        if (side === 0) {
-          context.moveTo(x, y);
-        } else {
-          context.lineTo(x, y);
-        }
-      }
-      context.closePath();
+      context.rect(-squareSize * 0.5, -squareSize * 0.5, squareSize, squareSize);
       context.stroke();
 
       context.shadowBlur = 0;
       context.fillStyle = `rgba(139,92,246,${0.10 * opacity})`;
-      context.fill();
+      context.fillRect(-squareSize * 0.5, -squareSize * 0.5, squareSize, squareSize);
 
       context.fillStyle = colors.muted;
       context.font = "600 18px system-ui";
-      context.fillText("Brillouin zone", -60, -radius - 28);
+      context.fillText("Brillouin zone", -60, -squareSize * 0.5 - 28);
       context.font = "700 16px system-ui";
       context.fillStyle = strength < 0.4 ? "#fca5a5" : "#ef4444";
       context.fillText("Chern Number: Fails", -72, radius + 46);
@@ -664,10 +655,10 @@
 
       const noiseCount = Math.floor(160 * strength);
       for (let index = 0; index < noiseCount; index += 1) {
-        const angle = index * 2.399 + bzNoise * 3.2;
-        const r = radius * (0.2 + 1.4 * ((index % 11) / 10));
-        const x = Math.cos(angle) * r;
-        const y = Math.sin(angle) * r;
+        const rawX = Math.sin(index * 12.9898 + bzNoise * 9.7) * 43758.5453;
+        const rawY = Math.sin(index * 78.233 + bzNoise * 5.3) * 24634.6345;
+        const x = (rawX - Math.floor(rawX)) * squareSize * 1.8 - squareSize * 0.9;
+        const y = (rawY - Math.floor(rawY)) * squareSize * 1.8 - squareSize * 0.9;
         context.fillStyle = `rgba(239,68,68,${0.18 + 0.42 * ((index % 7) / 6)})`;
         context.beginPath();
         context.arc(x, y, 1.5 + (index % 3), 0, Math.PI * 2);
