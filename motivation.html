@@ -385,12 +385,12 @@
       {
         kicker: "Step 5 of 5",
         title: "The Bott index",
-        caption: "The Bott index measures real-space winding through projected position operators, and that integer survives disorder.",
+        caption: "The Bott index is built from projected position operators and remains quantized even when disorder is present.",
         leftTitle: "Projected position operators",
         leftTag: "U = exp(2πix/L), V = exp(2πiy/L)",
-        rightTitle: "Unit-circle winding",
-        rightTag: "W = U V U† V†",
-        insight: "Project filled states onto position operators U and V. The Bott index measures how many times the matrix U V U† V† winds around zero. The answer is always an integer — it cannot change unless the energy gap closes. This is the invariant that survives disorder.",
+        rightTitle: "Stable real-space invariant",
+        rightTag: "Bott(U, V)",
+        insight: "Project filled states onto position operators U and V, then compare how the projected coordinates fail to commute. That mismatch produces an integer-valued invariant that stays fixed unless the energy gap closes. This is the real-space topological marker that survives disorder.",
         disorderControl: false,
       }
     ];
@@ -438,7 +438,6 @@
     let lastTime = 0;
     let edgePhase = 0;
     let bzNoise = 0;
-    let eigenRotation = 0;
     let fuzzyPhase = 0;
 
     const latticeSize = 9;
@@ -726,50 +725,46 @@
       context.fillText("Fuzzy overlap means [U,V] is not exactly zero after projection.", 26, height - 18);
     }
 
-    function drawWindingPanel(context, width, height) {
+    function drawBottPanel(context, width, height) {
       drawBackground(context, width, height);
-      const cx = width * 0.5;
-      const cy = height * 0.52;
-      const radius = Math.min(width, height) * 0.27;
+      const cardX = 48;
+      const cardY = 58;
+      const cardWidth = width - 96;
+      const cardHeight = height - 116;
 
-      context.strokeStyle = "rgba(255,255,255,0.12)";
-      context.lineWidth = 2;
+      context.fillStyle = "rgba(124,58,237,0.10)";
+      context.strokeStyle = "rgba(255,255,255,0.10)";
+      context.lineWidth = 1.5;
       context.beginPath();
-      context.arc(cx, cy, radius, 0, Math.PI * 2);
+      context.roundRect(cardX, cardY, cardWidth, cardHeight, 24);
+      context.fill();
       context.stroke();
 
-      context.strokeStyle = "rgba(255,255,255,0.08)";
-      context.beginPath();
-      context.moveTo(cx - radius - 28, cy);
-      context.lineTo(cx + radius + 28, cy);
-      context.moveTo(cx, cy - radius - 28);
-      context.lineTo(cx, cy + radius + 28);
-      context.stroke();
+      context.fillStyle = colors.text;
+      context.font = "700 18px system-ui";
+      context.fillText("Bott index from projected coordinates", 72, 110);
 
-      context.strokeStyle = colors.orange;
-      context.lineWidth = 4;
+      context.fillStyle = colors.accent;
+      context.font = "700 24px system-ui";
+      context.fillText("Bott(U, V) = integer", 72, 168);
+
+      context.fillStyle = colors.muted;
+      context.font = "500 15px system-ui";
+      context.fillText("1. Project onto occupied states", 72, 222);
+      context.fillText("2. Build the projected position operators", 72, 258);
+      context.fillText("3. Measure non-commutativity in real space", 72, 294);
+      context.fillText("4. The value changes only if the gap closes", 72, 330);
+
+      context.strokeStyle = "rgba(251,146,60,0.35)";
+      context.lineWidth = 3;
       context.beginPath();
-      context.arc(cx, cy, radius + 16, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2);
+      context.moveTo(72, 368);
+      context.lineTo(width - 72, 368);
       context.stroke();
 
       context.fillStyle = colors.orange;
-      context.font = "700 14px system-ui";
-      context.fillText("winding number = 1", cx - 62, cy - radius - 34);
-
-      for (let index = 0; index < eigenPhases.length; index += 1) {
-        const angle = eigenPhases[index] + eigenRotation;
-        const x = cx + Math.cos(angle) * radius;
-        const y = cy + Math.sin(angle) * radius;
-        const hue = 230 + index * 9;
-        context.fillStyle = `hsl(${hue}, 85%, 68%)`;
-        context.beginPath();
-        context.arc(x, y, 5.5, 0, Math.PI * 2);
-        context.fill();
-      }
-
-      context.fillStyle = colors.muted;
-      context.font = "600 14px system-ui";
-      context.fillText("Eigenvalues of W = U V U† V†", 22, 28);
+      context.font = "700 15px system-ui";
+      context.fillText("Disorder can deform states, but not smoothly erase the integer.", 72, 402);
     }
 
     function renderStep() {
@@ -848,7 +843,7 @@
       }
 
       drawUVPanel(leftContext, leftWidth, leftHeight);
-      drawWindingPanel(rightContext, rightWidth, rightHeight);
+      drawBottPanel(rightContext, rightWidth, rightHeight);
     }
 
     function animate(time) {
@@ -862,7 +857,6 @@
         }
         if (currentStep === 4) {
           fuzzyPhase += delta * 0.0013;
-          eigenRotation += delta * 0.00035;
         }
       }
 
